@@ -25,6 +25,7 @@ const config: Config = {
       width:{
         '90v': '90vw',
         '80v': '80vw',
+        '300': '300px'
       },
       boxShadow:{
         'shadow-card': '0px 0px 60px 0px rgba(0,0,0,0.30)',

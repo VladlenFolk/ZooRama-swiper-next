@@ -1,123 +1,124 @@
-'use client'
-import { useState, useRef, createRef, useMemo } from "react";
-import "./App.css";
-import Button from "@/app/components/button/button";
+"use client";
+import { useState, useEffect } from "react";
+import { useSprings, animated, to as interpolate } from "@react-spring/web";
+import { useDrag } from "@use-gesture/react";
 
-interface Animal {
-  id: number;
-  name: string;
-  img: string;
-}
 
-type Direction = "left" | "right" | "up" | "down";
+const cards = [
+  "https://avatars.mds.yandex.net/get-entity_search/135316/777333296/S122x122Smart_2x",
+  "https://avatars.mds.yandex.net/get-entity_search/2360676/844472719/S122x122_2x",
+  "https://avatars.mds.yandex.net/get-entity_search/1922058/849472009/S122x122Smart_2x",
+  "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
+].reverse();
 
-interface CardRef {
-  swipe: (dir?: Direction) => Promise<void>;
-  restoreCard: () => Promise<void>;
-}
+const to = (i: number) => ({
+  x: 0,
+  y: 0,
+  rot: 0,
+  scale: 1,
+  delay: i * 100,
+});
+const from = (_i: number) => ({ x: 0, rot: 0, scale: 1, y: 0 });
+const trans = (r: number, s: number) => `scale(${s}) rotate(${r * 10}deg)`;
 
-const animals: Animal[] = [
-  {
-    id: 1,
-    name: "Доша",
-    img: "https://avatars.mds.yandex.net/get-entity_search/2360676/844472719/S122x122_2x",
-  },
-  {
-    id: 2,
-    name: "Сиба",
-    img: "https://avatars.mds.yandex.net/get-entity_search/135316/777333296/S122x122Smart_2x",
-  },
-  {
-    id: 3,
-    name: "Шпиц",
-    img: "https://avatars.mds.yandex.net/get-entity_search/1922058/849472009/S122x122Smart_2x",
-  },
-  {
-    id: 4,
-    name: "Джек",
-    img: "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
-  },
-];
+function Deck() {
+  const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
 
-function App() {
-  const [currentIndex, setCurrentIndex] = useState<number>(animals.length - 1);
-  const [lastDirection, setLastDirection] = useState<Direction | undefined>();
+  const [gone] = useState(() => new Set());
+  
 
-  const currentIndexRef = useRef<number>(currentIndex);
+  const [props, api] = useSprings(cards.length, (i) => ({
+    ...to(i),
+    from: from(i),
+    onStart: () => console.log('the spring has started'),
+  }));
 
-  const childRefs = useMemo(
-    () =>
-      Array(animals.length)
-        .fill(0)
-        .map(() => createRef<CardRef>()),
-    []
+ 
+  const bind = useDrag(
+    ({
+      args: [index],
+      active,
+      movement: [mx],
+      direction: [xDir],
+      velocity: [vx],
+    }) => {
+      const flippedLeft = mx > windowWidth / 10;
+      const flippedRight = mx < -windowWidth / 10;
+      const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
+      if (!active && (flippedLeft || flippedRight)) gone.add(index);
+
+      api.start((i) => {
+        if (index !== i) return;
+        const isGone = gone.has(index);
+        const x = isGone ? (200 + windowWidth) * flippedDir : active ? mx : 0;
+        const rot = flippedDir ? mx / 100 + (isGone ? xDir * 2 * vx : 0) : 0;
+        const scale = active ? 1.1 : 1;
+        
+        return {
+          x,
+          rot,
+          scale,
+          delay: undefined,
+          config: { friction: 50, tension: active ? 800 : isGone ? 200 : 500 },
+        };
+      });
+      
+      if (!active && gone.size === cards.length)
+        setTimeout(() => {
+          gone.clear();
+          api.start((i) => to(i));
+        }, 600);
+    }
   );
 
-  const updateCurrentIndex = (val: number) => {
-    setCurrentIndex(val);
-    currentIndexRef.current = val;
-  };
 
-  const canGoBack = currentIndex < animals.length - 1;
-  const canSwipe = currentIndex >= 0;
-
-  const swiped = (
-    direction: Direction,
-    index: number
-  ) => {
-    setLastDirection(direction);
-    updateCurrentIndex(index - 1);
-  };
-
-  const swipe = async (dir?: Direction) => {
-    if (canSwipe && currentIndex < animals.length) {
-      await childRefs[currentIndex].current?.swipe(dir);
-    }
-  };
-
-  const goBack = async () => {
-    if (!canGoBack) return;
-    const newIndex = currentIndex + 1;
-    updateCurrentIndex(newIndex);
-    await childRefs[newIndex].current?.restoreCard();
-  };
   return (
-    <div className="app">
-      <div className="flex flex-col items-center content-center w-screen h-screen min-h-600 p-5 relative">
-        <div className="flex flex-col h-300 max-w-260 relative w-90v">
-          {animals.map((animal) => (
-            <div
-              // ref={childRefs[index]}
-              className="origin-center w-full h-full absolute"
-              key={animal.id}
-              // onSwipe={(dir) => swiped(dir as Direction, animal.name, index)}
-            >
-              <div
-                style={{ backgroundImage: `url(${animal.img})` }}
-                className="absolute rounded-[20px] bg-white max-w-260 h-[260px] bg-cover bg-center w-80v shadow-card"
-              >
-                <h3 className="absolute bottom-4 right-4 text-white font-bold text-lg ">{animal.name}</h3>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center">
-          <Button text={'Смахнуть влево!'} swipe={() => swipe("left")} canSwipe={canSwipe} />
-           <Button text={'Предыдущий!'} swipe={() => goBack()} canSwipe={canGoBack} />
-           <Button text={'Смахнуть вправо!'} swipe={() => swipe("right")} canSwipe={canSwipe} />
-        </div>
-        {lastDirection ? (
-          <h2 key={lastDirection} className="infoText">
-            You swiped {lastDirection}
-          </h2>
-        ) : (
-          <h2 className="infoText">
-            Swipe a card or press a button to get Restore Card button visible!
-          </h2>
-        )}
-      </div>
+    <div className="cards">
+      {props.map(({ x, y, rot, scale }, i) => (
+        <animated.div className="deck" key={i} style={{ x, y }}>
+          <animated.div
+            {...bind(i)}
+            className="card"
+            style={{
+              transform: interpolate([rot, scale], trans),
+              backgroundImage: `url(${cards[i]})`,
+            }}
+          >
+            {i === i - gone.size && (
+              <>
+                <animated.div
+                  className="label nope"
+                  style={{
+                    opacity: interpolate([x], (x) =>
+                      x < -windowWidth / 10 ? 1 : 0
+                    ),
+                  }}
+                >
+                  NOPE
+                </animated.div>
+                <animated.div
+                  className="label like"
+                  style={{
+                    opacity: interpolate([x], (x) =>
+                      x > windowWidth / 10 ? 1 : 0
+                    ),
+                  }}
+                >
+                  LIKE
+                </animated.div>
+              </>
+            )}
+          </animated.div>
+        </animated.div>
+      ))}
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <div className="container">
+      <Deck />
+    </div>
+  );
+}
