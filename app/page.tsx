@@ -80,6 +80,11 @@ function Deck() {
     });
   };
 
+  const reset = () => {
+    gone.clear();
+    api.start((i)=>to(i))
+  }
+
   return (
     <div className="cards">
       {props.map(({ x, y, rot, scale }, i) => (
@@ -128,6 +133,7 @@ function Deck() {
         <button onClick={() => swipe(cards.length - 1 - gone.size, 1)}>
           Лайк
         </button>
+        <button onClick={reset}>Заново</button>
       </div>
     </div>
   );
