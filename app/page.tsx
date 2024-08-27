@@ -22,8 +22,7 @@ const trans = (r: number, s: number) => `scale(${s}) rotate(${r * 10}deg)`;
 
 function Deck() {
   const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
-  const [history, setHistory] = useState<number[]>([]);
-  const [gone, setGone] = useState(new Set<number>());
+  const [gone] = useState(new Set<number>());
 
   const [props, api] = useSprings(cards.length, (i) => ({
     ...to(i),
@@ -65,6 +64,21 @@ function Deck() {
     }
   );
 
+  const swipe = (index: number, direction: number) => {
+    gone.add(index);
+    api.start((i) => {
+      if (index !== i) return;
+      const x = (200 + windowWidth) * direction;
+      const rot = direction * 10;
+      const scale = 1;
+      return {
+        x,
+        rot,
+        scale,
+        config: { friction: 80, tension: 300 },
+      };
+    });
+  };
 
   return (
     <div className="cards">
@@ -107,6 +121,14 @@ function Deck() {
           </animated.div>
         </animated.div>
       ))}
+      <div className="buttons">
+        <button onClick={() => swipe(cards.length - 1 - gone.size, -1)}>
+          Дизлайк
+        </button>
+        <button onClick={() => swipe(cards.length - 1 - gone.size, 1)}>
+          Лайк
+        </button>
+      </div>
     </div>
   );
 }
