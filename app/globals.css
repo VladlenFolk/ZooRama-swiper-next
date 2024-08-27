@@ -113,3 +113,8 @@ body {
   padding: 10px;
   border-radius: 5px;
 }
+
+.buttons {
+  position: absolute;
+  bottom: 10px;
+}

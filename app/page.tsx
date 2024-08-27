@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 import { useSprings, animated, to as interpolate } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 
-
 const cards = [
   "https://avatars.mds.yandex.net/get-entity_search/135316/777333296/S122x122Smart_2x",
   "https://avatars.mds.yandex.net/get-entity_search/2360676/844472719/S122x122_2x",
   "https://avatars.mds.yandex.net/get-entity_search/1922058/849472009/S122x122Smart_2x",
   "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
-].reverse();
+];
 
 const to = (i: number) => ({
   x: 0,
@@ -23,51 +22,46 @@ const trans = (r: number, s: number) => `scale(${s}) rotate(${r * 10}deg)`;
 
 function Deck() {
   const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
-
-  const [gone] = useState(() => new Set());
-  
+  const [history, setHistory] = useState<number[]>([]);
+  const [gone, setGone] = useState(new Set<number>());
 
   const [props, api] = useSprings(cards.length, (i) => ({
     ...to(i),
     from: from(i),
-    onStart: () => console.log('the spring has started'),
+    onStart: () => console.log("the spring has started"),
   }));
 
- 
   const bind = useDrag(
     ({
       args: [index],
       active,
-      movement: [mx],
+      movement: [mx, my],
       direction: [xDir],
       velocity: [vx],
     }) => {
+
       const flippedLeft = mx > windowWidth / 10;
       const flippedRight = mx < -windowWidth / 10;
       const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
       if (!active && (flippedLeft || flippedRight)) gone.add(index);
-
+ 
       api.start((i) => {
         if (index !== i) return;
         const isGone = gone.has(index);
         const x = isGone ? (200 + windowWidth) * flippedDir : active ? mx : 0;
+        const y = active ? my : 0;
         const rot = flippedDir ? mx / 100 + (isGone ? xDir * 2 * vx : 0) : 0;
         const scale = active ? 1.1 : 1;
-        
+
         return {
           x,
+          y,
           rot,
           scale,
           delay: undefined,
           config: { friction: 50, tension: active ? 800 : isGone ? 200 : 500 },
         };
       });
-      
-      if (!active && gone.size === cards.length)
-        setTimeout(() => {
-          gone.clear();
-          api.start((i) => to(i));
-        }, 600);
     }
   );
 
@@ -81,6 +75,8 @@ function Deck() {
             className="card"
             style={{
               transform: interpolate([rot, scale], trans),
+              x,
+              y,
               backgroundImage: `url(${cards[i]})`,
             }}
           >
