@@ -23,7 +23,7 @@ const trans = (r: number, s: number) => `scale(${s}) rotate(${r * 10}deg)`;
 function Deck() {
   const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
   const [gone] = useState(new Set<number>());
-
+  const [reset, setReset] = useState(true);
   const [props, api] = useSprings(cards.length, (i) => ({
     ...to(i),
     from: from(i),
@@ -38,12 +38,11 @@ function Deck() {
       direction: [xDir],
       velocity: [vx],
     }) => {
-
       const flippedLeft = mx > windowWidth / 10;
       const flippedRight = mx < -windowWidth / 10;
       const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
       if (!active && (flippedLeft || flippedRight)) gone.add(index);
- 
+      setReset(true);
       api.start((i) => {
         if (index !== i) return;
         const isGone = gone.has(index);
@@ -80,10 +79,13 @@ function Deck() {
     });
   };
 
-  const reset = () => {
-    gone.clear();
-    api.start((i)=>to(i))
-  }
+  const doReset = () => {
+    setTimeout(() => {
+      setReset(false);
+      gone.clear();
+      api.start((i) => to(i));
+    }, 0,2);
+  };
 
   return (
     <div className="cards">
@@ -99,7 +101,7 @@ function Deck() {
               backgroundImage: `url(${cards[i]})`,
             }}
           >
-            {i === i - gone.size && (
+            {i === i - gone.size && reset && (
               <>
                 <animated.div
                   className="label nope"
@@ -133,7 +135,7 @@ function Deck() {
         <button onClick={() => swipe(cards.length - 1 - gone.size, 1)}>
           Лайк
         </button>
-        <button onClick={reset}>Заново</button>
+        <button onClick={doReset}>Заново</button>
       </div>
     </div>
   );
