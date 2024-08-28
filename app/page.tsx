@@ -32,7 +32,6 @@ function Deck() {
     ...to(i),
     from: from(i),
   }));
-console.log(gone.size);
 
   const bind = useDrag(
     ({
@@ -46,7 +45,11 @@ console.log(gone.size);
       const flippedLeft = mx > windowWidth / 10;
       const flippedRight = mx < -windowWidth / 10;
       const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
-      if (!active && (flippedLeft || flippedRight)) gone.add(index);
+      if (!active && (flippedLeft || flippedRight)) {
+        gone.add(index);
+        setDirection(flippedDir === -1 ? "left" : "right");
+      }
+
       setReset(true);
       api.start((i) => {
         if (index !== i) return;
@@ -85,10 +88,10 @@ console.log(gone.size);
           x,
           rot,
           scale,
-          config: { friction: 280, tension: 280 },
+          config: { friction: 380, tension: 480 },
         };
       });
-    }, 300);
+    }, 0);
   };
 
   const doReset = () => {
@@ -101,7 +104,7 @@ console.log(gone.size);
       config: { friction: 80, tension: 300 },
     }));
   };
-console.log(cards.length, gone.size);
+
 
   return (
     <div className="container">
@@ -144,7 +147,7 @@ console.log(cards.length, gone.size);
               )}
               <>
                 <animated.div
-                  className={`label nope ${dislike ? "opacity" : ""} ${i} ${cards.length - 1 - gone.size} ${gone.size}`}
+                  className={`label nope ${dislike ? "opacity" : ""} `}
                 >
                   NOPE
                 </animated.div>
@@ -170,6 +173,7 @@ console.log(cards.length, gone.size);
             onClick={() => {
               swipe(cards.length - 1 - gone.size, 1),
                 setLike(true),
+                setDirection('right');
                 setTimeout(() => setLike(false), 200);
             }}
           >
