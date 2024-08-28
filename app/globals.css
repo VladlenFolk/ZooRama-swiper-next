@@ -41,7 +41,7 @@ body {
   display: flex;
   justify-content: center; /* Центрируем содержимое по горизонтали */
   align-items: center; /* Центрируем содержимое по вертикали */
-  overflow: hidden; /* Скрываем все, что выходит за пределы контейнера */
+  overflow: hidden; 
   background-color: aquamarine;
 }
 
@@ -83,7 +83,10 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-
+.container{
+  display: flex;
+  flex-direction: column;
+}
 
 
 .label {
@@ -93,6 +96,7 @@ body {
   color: white;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   pointer-events: none;
+  opacity: 0;
   transition: opacity 0.2s ease-in-out;
 }
 
@@ -112,6 +116,10 @@ body {
   transform: rotate(-30deg);
   padding: 10px;
   border-radius: 5px;
+}
+
+.opacity {
+  opacity: 1;
 }
 
 .buttons {

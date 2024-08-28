@@ -24,10 +24,12 @@ function Deck() {
   const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
   const [gone] = useState(new Set<number>());
   const [reset, setReset] = useState(true);
+  const [like, setLike] = useState(false);
+  const [dislike, setDislike] = useState(false);
+  const [direction, setDirection] = useState("Направление");
   const [props, api] = useSprings(cards.length, (i) => ({
     ...to(i),
     from: from(i),
-    onStart: () => console.log("the spring has started"),
   }));
 
   const bind = useDrag(
@@ -65,78 +67,114 @@ function Deck() {
 
   const swipe = (index: number, direction: number) => {
     gone.add(index);
-    api.start((i) => {
-      if (index !== i) return;
-      const x = (200 + windowWidth) * direction;
-      const rot = direction * 10;
-      const scale = 1;
-      return {
-        x,
-        rot,
-        scale,
-        config: { friction: 80, tension: 300 },
-      };
-    });
+    setReset(true);
+    if (direction == -1) {
+      setDirection("left");
+    } else {
+      setDirection("right");
+    }
+    setTimeout(() => {
+      api.start((i) => {
+        if (index !== i) return;
+        const x = (200 + windowWidth) * direction;
+        const rot = direction * 10;
+        const scale = 1;
+        return {
+          x,
+          rot,
+          scale,
+          config: { friction: 80, tension: 80 },
+        };
+      });
+    }, 300);
   };
 
   const doReset = () => {
-    setTimeout(() => {
-      setReset(false);
-      gone.clear();
-      api.start((i) => to(i));
-    }, 0,2);
+    setReset(false);
+    setLike(false);
+    setDislike(false);
+    gone.clear();
+    api.start((i) => ({
+      ...to(i),
+      config: { friction: 80, tension: 300 },
+    }));
   };
 
   return (
-    <div className="cards">
-      {props.map(({ x, y, rot, scale }, i) => (
-        <animated.div className="deck" key={i} style={{ x, y }}>
-          <animated.div
-            {...bind(i)}
-            className="card"
-            style={{
-              transform: interpolate([rot, scale], trans),
-              x,
-              y,
-              backgroundImage: `url(${cards[i]})`,
-            }}
-          >
-            {i === i - gone.size && reset && (
+    <div className="container">
+      <div className="cards">
+        {props.map(({ x, y, rot, scale }, i) => (
+          <animated.div className="deck" key={i} style={{ x, y }}>
+            <animated.div
+              {...bind(i)}
+              className="card"
+              style={{
+                transform: interpolate([rot, scale], trans),
+                x,
+                y,
+                backgroundImage: `url(${cards[i]})`,
+              }}
+            >
+              {i === i - gone.size && reset && (
+                <>
+                  <animated.div
+                    className="label nope"
+                    style={{
+                      opacity: interpolate([x], (x) =>
+                        x < -windowWidth / 10 ? 1 : 0
+                      ),
+                    }}
+                  >
+                    NOPE
+                  </animated.div>
+                  <animated.div
+                    className="label like "
+                    style={{
+                      opacity: interpolate([x], (x) =>
+                        x > windowWidth / 10 ? 1 : 0
+                      ),
+                    }}
+                  >
+                    LIKE
+                  </animated.div>
+                </>
+              )}
               <>
                 <animated.div
-                  className="label nope"
-                  style={{
-                    opacity: interpolate([x], (x) =>
-                      x < -windowWidth / 10 ? 1 : 0
-                    ),
-                  }}
+                  className={`label nope ${dislike ? "opacity" : ""}`}
                 >
                   NOPE
                 </animated.div>
-                <animated.div
-                  className="label like"
-                  style={{
-                    opacity: interpolate([x], (x) =>
-                      x > windowWidth / 10 ? 1 : 0
-                    ),
-                  }}
-                >
+                <animated.div className={`label like ${like ? "opacity" : ""}`}>
                   LIKE
                 </animated.div>
               </>
-            )}
+            </animated.div>
           </animated.div>
-        </animated.div>
-      ))}
-      <div className="buttons">
-        <button onClick={() => swipe(cards.length - 1 - gone.size, -1)}>
-          Дизлайк
-        </button>
-        <button onClick={() => swipe(cards.length - 1 - gone.size, 1)}>
-          Лайк
-        </button>
-        <button onClick={doReset}>Заново</button>
+        ))}
+        <div className="buttons">
+          <button
+            onClick={() => {
+              swipe(cards.length - 1 - gone.size, -1),
+                setDislike(true),
+                setTimeout(() => setDislike(false), 200);
+            }}
+          >
+            Дизлайк
+          </button>
+          <button
+            onClick={() => {
+              swipe(cards.length - 1 - gone.size, 1),
+                setLike(true),
+                setTimeout(() => setLike(false), 200);
+            }}
+          >
+            Лайк
+          </button>
+          <button onClick={doReset}>Заново</button>
+        </div>
       </div>
+      <h1>{direction}</h1>
     </div>
   );
 }
