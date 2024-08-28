@@ -27,10 +27,12 @@ function Deck() {
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [direction, setDirection] = useState("Направление");
+  const [count, setCount] = useState(0)
   const [props, api] = useSprings(cards.length, (i) => ({
     ...to(i),
     from: from(i),
   }));
+console.log(gone.size);
 
   const bind = useDrag(
     ({
@@ -40,6 +42,7 @@ function Deck() {
       direction: [xDir],
       velocity: [vx],
     }) => {
+      if (gone.has(index)) return;
       const flippedLeft = mx > windowWidth / 10;
       const flippedRight = mx < -windowWidth / 10;
       const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
@@ -51,8 +54,10 @@ function Deck() {
         const x = isGone ? (200 + windowWidth) * flippedDir : active ? mx : 0;
         const y = active ? my : 0;
         const rot = flippedDir ? mx / 100 + (isGone ? xDir * 2 * vx : 0) : 0;
+        if(isGone){
+          setCount((prev)=>prev+1)
+        }
         const scale = active ? 1.1 : 1;
-
         return {
           x,
           y,
@@ -60,19 +65,16 @@ function Deck() {
           scale,
           delay: undefined,
           config: { friction: 50, tension: active ? 800 : isGone ? 200 : 500 },
+          
         };
       });
     }
   );
 
   const swipe = (index: number, direction: number) => {
+    if (gone.has(index)) return;
     gone.add(index);
     setReset(true);
-    if (direction == -1) {
-      setDirection("left");
-    } else {
-      setDirection("right");
-    }
     setTimeout(() => {
       api.start((i) => {
         if (index !== i) return;
@@ -83,7 +85,7 @@ function Deck() {
           x,
           rot,
           scale,
-          config: { friction: 80, tension: 80 },
+          config: { friction: 280, tension: 280 },
         };
       });
     }, 300);
@@ -99,6 +101,7 @@ function Deck() {
       config: { friction: 80, tension: 300 },
     }));
   };
+console.log(cards.length, gone.size);
 
   return (
     <div className="container">
@@ -115,10 +118,10 @@ function Deck() {
                 backgroundImage: `url(${cards[i]})`,
               }}
             >
-              {i === i - gone.size && reset && (
+              {reset && i === cards.length - 1 - gone.size && (
                 <>
                   <animated.div
-                    className="label nope"
+                    className={`label nope `}
                     style={{
                       opacity: interpolate([x], (x) =>
                         x < -windowWidth / 10 ? 1 : 0
@@ -128,7 +131,7 @@ function Deck() {
                     NOPE
                   </animated.div>
                   <animated.div
-                    className="label like "
+                    className="label like"
                     style={{
                       opacity: interpolate([x], (x) =>
                         x > windowWidth / 10 ? 1 : 0
@@ -141,7 +144,7 @@ function Deck() {
               )}
               <>
                 <animated.div
-                  className={`label nope ${dislike ? "opacity" : ""}`}
+                  className={`label nope ${dislike ? "opacity" : ""} ${i} ${cards.length - 1 - gone.size} ${gone.size}`}
                 >
                   NOPE
                 </animated.div>
@@ -157,6 +160,7 @@ function Deck() {
             onClick={() => {
               swipe(cards.length - 1 - gone.size, -1),
                 setDislike(true),
+                setDirection('left')
                 setTimeout(() => setDislike(false), 200);
             }}
           >
