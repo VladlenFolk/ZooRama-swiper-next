@@ -91,7 +91,7 @@ function Deck() {
           config: { friction: 380, tension: 480 },
         };
       });
-    }, 0);
+    }, 300);
   };
 
   const doReset = () => {
