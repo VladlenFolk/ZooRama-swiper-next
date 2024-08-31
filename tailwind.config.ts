@@ -13,26 +13,28 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
-      minHeight:{
-        '600': '600px'
+      minHeight: {
+        "600": "600px",
       },
-      height:{
-        '300': '300px'
+      height: {
+        "300h": "300px",
       },
-      maxWidth:{
-        '260': '260px'
+      maxWidth: {
+        "260": "260px",
+        "maxW-300": "300px",
       },
-      width:{
-        '90v': '90vw',
-        '80v': '80vw',
-        '300': '300px'
-      },
-      boxShadow:{
-        'shadow-card': '0px 0px 60px 0px rgba(0,0,0,0.30)',
-        'shadow-button': '0px 0px 30px 0px rgba(0,0,0,0.10)',
+      width: {
+        "90v": "90vw",
+        "80v": "80vw",
+        "300": "300px",
+        "w-9/10": "90%",
       },
       colors: {
-        'button-color': '#9198e5',
+        "button-color": "#9198e5",
+      },
+      boxShadow: {
+        "shadow-1": "0 10px 20px rgba(0, 0, 0, 0.3)",//не применяется
+        "shadow-button": "0px 0px 30px 0px rgba(0,0,0,0.10)",
       },
     },
   },
