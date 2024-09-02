@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect,useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useSprings, animated, to as interpolate } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import Image from "next/image";
@@ -10,7 +10,6 @@ const cards = [
   "https://avatars.mds.yandex.net/get-entity_search/1922058/849472009/S122x122Smart_2x",
   "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
 ];
-
 
 export default function SwiperCards() {
   const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
@@ -30,10 +29,10 @@ export default function SwiperCards() {
   });
 
   const from = (_i: number) => ({
-    x: _i % 2 ===0 || 0 ? -windowWidth + 100 : windowWidth + 100,
+    x: _i % 2 === 0 || 0 ? -windowWidth + 100 : windowWidth + 100,
     rot: 0,
     scale: 1,
-    y: 0
+    y: 0,
   });
   const trans = (r: number, s: number) => `scale(${s}) rotate(${r * 10}deg)`;
 
@@ -41,7 +40,7 @@ export default function SwiperCards() {
     ...to(i),
     from: from(i),
   }));
- 
+
   useLayoutEffect(() => {
     api.start((i) => ({
       ...to(i),
@@ -191,39 +190,77 @@ export default function SwiperCards() {
                   LIKE
                 </animated.div>
               </>
+              <div className="absolute bottom-[5px] flex space-x-4 justify-center items-center">
+                <button className="w-[24px] h-[24px]" onClick={doReset}>
+                  <Image
+                    className="w-[24px] h-[24px]"
+                    src="refresh.svg"
+                    alt="перезагрузка"
+                    width="24"
+                    height="24"
+                  ></Image>
+                </button>
+                <button
+                  className="w-[30px] h-[30px]"
+                  onClick={() => {
+                    swipe(cards.length - 1 - gone.size, -1),
+                      setDislike(true),
+                      setDirection("left");
+                    setTimeout(() => setDislike(false), 200);
+                  }}
+                >
+                  <Image
+                    className="w-[30px] h-[30px]"
+                    src="nope.svg"
+                    alt="отклонить"
+                    width="24"
+                    height="24"
+                  ></Image>
+                </button>
+                <button
+                  className="w-[24px] h-[24px]"
+                  onClick={() => {
+                    console.log("добавлено в избранное");
+                  }}
+                >
+                  <Image
+                    className="w-[24px] h-[24px]"
+                    src="star.svg"
+                    alt="в избранное"
+                    width="24"
+                    height="24"
+                  ></Image>
+                </button>
+                <button
+                  className="w-[30px] h-[30px]"
+                  onClick={() => {
+                    swipe(cards.length - 1 - gone.size, 1),
+                      setLike(true),
+                      setDirection("right");
+                    setTimeout(() => setLike(false), 200);
+                  }}
+                >
+                  <Image
+                    className="w-[30px] h-[30px]"
+                    src="heart.svg"
+                    alt="лайк"
+                    width="24"
+                    height="24"
+                  ></Image>
+                </button>
+                <button className="w-[24px] h-[24px]">
+                  <Image
+                    className="w-[24px] h-[24px]"
+                    src="exclamation.svg"
+                    alt="перезагрузка"
+                    width="24"
+                    height="24"
+                  ></Image>
+                </button>
+              </div>
             </animated.div>
           </animated.div>
         ))}
-        <div className="absolute bottom-10 flex space-x-4 mt-4">
-          <button
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 ease-in-out"
-            onClick={() => {
-              swipe(cards.length - 1 - gone.size, -1),
-                setDislike(true),
-                setDirection("left");
-              setTimeout(() => setDislike(false), 200);
-            }}
-          >
-            Дизлайк
-          </button>
-          <button
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 ease-in-out"
-            onClick={() => {
-              swipe(cards.length - 1 - gone.size, 1),
-                setLike(true),
-                setDirection("right");
-              setTimeout(() => setLike(false), 200);
-            }}
-          >
-            Лайк
-          </button>
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 ease-in-out"
-            onClick={doReset}
-          >
-            Заново
-          </button>
-        </div>
       </div>
       <h1>{direction}</h1>
     </div>
