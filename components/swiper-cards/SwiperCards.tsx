@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect,useState } from "react";
 import { useSprings, animated, to as interpolate } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import Image from "next/image";
@@ -11,10 +11,11 @@ const cards = [
   "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
 ];
 
+
 export default function SwiperCards() {
   const windowWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
   const [gone] = useState(new Set<number>());
-  const [reset, setReset] = useState(true);
+  const [reset, setReset] = useState(false);
   const [like, setLike] = useState(false);
   const [dislike, setDislike] = useState(false);
   const [direction, setDirection] = useState("Направление");
@@ -29,10 +30,10 @@ export default function SwiperCards() {
   });
 
   const from = (_i: number) => ({
-    x: 0,
+    x: _i % 2 ===0 || 0 ? -windowWidth + 100 : windowWidth + 100,
     rot: 0,
     scale: 1,
-    y: -windowWidth + 100,
+    y: 0
   });
   const trans = (r: number, s: number) => `scale(${s}) rotate(${r * 10}deg)`;
 
@@ -41,7 +42,7 @@ export default function SwiperCards() {
     from: from(i),
   }));
  
-  useEffect(() => {
+  useLayoutEffect(() => {
     api.start((i) => ({
       ...to(i),
       config: { friction: 80, tension: 300 },
