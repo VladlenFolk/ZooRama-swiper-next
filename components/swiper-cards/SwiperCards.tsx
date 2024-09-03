@@ -5,10 +5,21 @@ import { useDrag } from "@use-gesture/react";
 import Image from "next/image";
 
 const cards = [
-  "https://avatars.mds.yandex.net/get-entity_search/135316/777333296/S122x122Smart_2x",
-  "https://avatars.mds.yandex.net/get-entity_search/2360676/844472719/S122x122_2x",
-  "https://avatars.mds.yandex.net/get-entity_search/1922058/849472009/S122x122Smart_2x",
-  "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
+  {
+    img: "https://avatars.mds.yandex.net/get-entity_search/135316/777333296/S122x122Smart_2x",
+    name: "Котик",
+    age: "45 лет",
+    description: "Грызу тапкиб мешаю спать"
+  },
+  {
+    img: "https://avatars.mds.yandex.net/get-entity_search/2360676/844472719/S122x122_2x",
+  },
+  {
+    img: "https://avatars.mds.yandex.net/get-entity_search/1922058/849472009/S122x122Smart_2x",
+  },
+  {
+    img: "https://avatars.mds.yandex.net/get-entity_search/7689070/784457321/S122x122Smart_2x",
+  },
 ];
 
 export default function SwiperCards() {
@@ -120,8 +131,8 @@ export default function SwiperCards() {
   };
 
   return (
-    <div className="w-full h-full bg-teal-200 overflow-hidden">
-      <div className="w-full h-full flex justify-center items-center relative">
+    <div className="w-full h-full  overflow-hidden flex flex-col justify-center items-center">
+      <div className="w-[330px] h-[472px] flex justify-center items-center relative">
         {props.map(({ x, y, rot, scale }, i) => (
           <animated.div
             className="deck absolute w-full h-full flex justify-center items-center"
@@ -130,12 +141,12 @@ export default function SwiperCards() {
           >
             <animated.div
               {...bind(i)}
-              className="touch-none h-[300px] w-[90%] absolute max-w-[300px] rounded-[10px] shadow-card bg-no-repeat bg-center bg-cover"
+              className="touch-none h-full w-full absolute max-w-[300px] rounded-[10px] shadow-card bg-no-repeat bg-center bg-cover"
               style={{
                 transform: interpolate([rot, scale], trans),
                 x,
                 y,
-                backgroundImage: `url(${cards[i]})`,
+                backgroundImage: `url(${cards[i].img})`,
               }}
             >
               {/* <Image
@@ -190,79 +201,80 @@ export default function SwiperCards() {
                   LIKE
                 </animated.div>
               </>
-              <div className="absolute bottom-[5px] flex space-x-4 justify-center items-center">
-                <button className="w-[24px] h-[24px]" onClick={doReset}>
-                  <Image
-                    className="w-[24px] h-[24px]"
-                    src="refresh.svg"
-                    alt="перезагрузка"
-                    width="24"
-                    height="24"
-                  ></Image>
-                </button>
-                <button
-                  className="w-[30px] h-[30px]"
-                  onClick={() => {
-                    swipe(cards.length - 1 - gone.size, -1),
-                      setDislike(true),
-                      setDirection("left");
-                    setTimeout(() => setDislike(false), 200);
-                  }}
-                >
-                  <Image
-                    className="w-[30px] h-[30px]"
-                    src="nope.svg"
-                    alt="отклонить"
-                    width="24"
-                    height="24"
-                  ></Image>
-                </button>
-                <button
-                  className="w-[24px] h-[24px]"
-                  onClick={() => {
-                    console.log("добавлено в избранное");
-                  }}
-                >
-                  <Image
-                    className="w-[24px] h-[24px]"
-                    src="star.svg"
-                    alt="в избранное"
-                    width="24"
-                    height="24"
-                  ></Image>
-                </button>
-                <button
-                  className="w-[30px] h-[30px]"
-                  onClick={() => {
-                    swipe(cards.length - 1 - gone.size, 1),
-                      setLike(true),
-                      setDirection("right");
-                    setTimeout(() => setLike(false), 200);
-                  }}
-                >
-                  <Image
-                    className="w-[30px] h-[30px]"
-                    src="heart.svg"
-                    alt="лайк"
-                    width="24"
-                    height="24"
-                  ></Image>
-                </button>
-                <button className="w-[24px] h-[24px]">
-                  <Image
-                    className="w-[24px] h-[24px]"
-                    src="exclamation.svg"
-                    alt="перезагрузка"
-                    width="24"
-                    height="24"
-                  ></Image>
-                </button>
-              </div>
             </animated.div>
           </animated.div>
         ))}
+        <div
+          className={`absolute bottom-[25px] flex space-x-4 justify-center items-center`}
+        >
+          <button className="w-[24px] h-[24px]" onClick={doReset}>
+            <Image
+              className="w-[24px] h-[24px]"
+              src="refresh.svg"
+              alt="перезагрузка"
+              width="24"
+              height="24"
+            ></Image>
+          </button>
+          <button
+            className="w-[31px] h-[31px]"
+            onClick={() => {
+              swipe(cards.length - 1 - gone.size, -1),
+                setDislike(true),
+                setDirection("left");
+              setTimeout(() => setDislike(false), 200);
+            }}
+          >
+            <Image
+              className="w-[30px] h-[30px]"
+              src="nope.svg"
+              alt="отклонить"
+              width="24"
+              height="24"
+            ></Image>
+          </button>
+          <button
+            className="w-[24px] h-[24px]"
+            onClick={() => {
+              console.log("добавлено в избранное");
+            }}
+          >
+            <Image
+              className="w-[24px] h-[24px]"
+              src="star.svg"
+              alt="в избранное"
+              width="24"
+              height="24"
+            ></Image>
+          </button>
+          <button
+            className="w-[30px] h-[30px]"
+            onClick={() => {
+              swipe(cards.length - 1 - gone.size, 1),
+                setLike(true),
+                setDirection("right");
+              setTimeout(() => setLike(false), 200);
+            }}
+          >
+            <Image
+              className="w-[30px] h-[30px]"
+              src="heart.svg"
+              alt="лайк"
+              width="24"
+              height="24"
+            ></Image>
+          </button>
+          <button className="w-[24px] h-[24px]">
+            <Image
+              className="w-[24px] h-[24px]"
+              src="exclamation.svg"
+              alt="перезагрузка"
+              width="24"
+              height="24"
+            ></Image>
+          </button>
+        </div>
       </div>
-      <h1>{direction}</h1>
     </div>
   );
 }
