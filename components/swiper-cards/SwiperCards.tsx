@@ -66,13 +66,8 @@ export default function SwiperCards() {
       movement: [mx, my],
       direction: [xDir],
       velocity: [vx],
-      tap
     }) => {
       if (gone.has(index)) return;
-      if (tap) {
-        onTap(index, 1); // Swipe right on tap
-        return;
-      }
       const flippedLeft = mx > windowWidth / 10;
       const flippedRight = mx < -windowWidth / 10;
       const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
@@ -80,7 +75,6 @@ export default function SwiperCards() {
         gone.add(index);
         setDirection(flippedDir === -1 ? "left" : "right");
       }
-
       setReset(true);
       api.start((i) => {
         if (index !== i) return;
@@ -120,6 +114,7 @@ export default function SwiperCards() {
           rot,
           scale,
           config: { friction: 380, tension: 480 },
+          
         };
       });
     }, 300);
@@ -127,17 +122,15 @@ export default function SwiperCards() {
 
   const onTap = (index: number, direction: number) => {
     if (gone.has(index)) return;
+    setReset(false)
     gone.add(index);
-    setReset(true);
       api.start((i) => {
         if (index !== i) return;
         const x = (200 + windowWidth) * direction;
         const rot = direction * 10;
-        const scale = 1;
         return {
           x,
           rot,
-          scale,
           config: { friction: 380, tension: 480 },
         };
       });
@@ -174,6 +167,7 @@ export default function SwiperCards() {
                 y,
                 backgroundImage: `url(${cards[i].img})`,
               }}
+              onClick={() => onTap(i, -1)} 
             >
               {/* <Image
                   src={cards[i]}
