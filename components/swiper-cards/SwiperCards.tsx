@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useSprings, animated, to as interpolate } from "@react-spring/web";
-import { useDrag } from "@use-gesture/react";
+import { useDrag, pinchAction, useGesture  } from "@use-gesture/react";
 import Image from "next/image";
 
 const cards = [
@@ -66,8 +66,13 @@ export default function SwiperCards() {
       movement: [mx, my],
       direction: [xDir],
       velocity: [vx],
+      tap
     }) => {
       if (gone.has(index)) return;
+      if (tap) {
+        onTap(index, 1); // Swipe right on tap
+        return;
+      }
       const flippedLeft = mx > windowWidth / 10;
       const flippedRight = mx < -windowWidth / 10;
       const flippedDir = flippedLeft ? 1 : flippedRight ? -1 : 0;
@@ -99,6 +104,7 @@ export default function SwiperCards() {
     }
   );
 
+
   const swipe = (index: number, direction: number) => {
     if (gone.has(index)) return;
     gone.add(index);
@@ -117,6 +123,25 @@ export default function SwiperCards() {
         };
       });
     }, 300);
+  };
+
+  const onTap = (index: number, direction: number) => {
+    if (gone.has(index)) return;
+    gone.add(index);
+    setReset(true);
+      api.start((i) => {
+        if (index !== i) return;
+        const x = (200 + windowWidth) * direction;
+        const rot = direction * 10;
+        const scale = 1;
+        return {
+          x,
+          rot,
+          scale,
+          config: { friction: 380, tension: 480 },
+        };
+      });
+    
   };
 
   const doReset = () => {
@@ -138,6 +163,7 @@ export default function SwiperCards() {
             className="deck absolute w-full h-full flex justify-center items-center"
             key={i}
             style={{ x, y }}
+            onClick={()=> gone.add(i)}
           >
             <animated.div
               {...bind(i)}
