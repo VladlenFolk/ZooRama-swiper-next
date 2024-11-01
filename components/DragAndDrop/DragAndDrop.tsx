@@ -5,7 +5,7 @@ const typesHero: Status[] = ["good", "normal", "bad"];
 
 export const DragAndDrop = () => {
   return (
-    <div>
+    <div className="grid grid-cols-3 gap-8 px-8 w-full flex-1">
       {typesHero.map((container) => (
         <ContainerCards status={container} key={container} />
       ))}

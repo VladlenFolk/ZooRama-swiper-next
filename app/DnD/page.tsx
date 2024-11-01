@@ -3,7 +3,7 @@ import { DragAndDrop } from "@/components/DragAndDrop/DragAndDrop";
 
 export default function DnD() {
   return (
-    <div>
+    <div className="min-h-[85vh] flex flex-col justify-center items-center ">
       <Title />
       <DragAndDrop />
     </div>

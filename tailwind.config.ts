@@ -36,6 +36,16 @@ const config: Config = {
         "shadow-1": "0 10px 20px rgba(0, 0, 0, 0.3)",//не применяется
         "shadow-button": "0px 0px 30px 0px rgba(0,0,0,0.10)",
       },
+      animation: {
+        fadeIn : 'fadeIn .3s ease-in-out'
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': {opacity: '0', transform: 'translateY(20px)'},
+          '100%': {opacity: '1', transform: 'translateY(0)'}
+        },
+        
+      }
     },
   },
   plugins: [],

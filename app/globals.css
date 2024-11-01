@@ -29,6 +29,10 @@ body {
   --orange450: #ff9001;
   --orange500: #ff7d34;
   --orange600: #fc6a00;
+  background-color: #1a1a1a;
+  color: #f2f2f2;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: normal;
 }
 
 @layer utilities {
