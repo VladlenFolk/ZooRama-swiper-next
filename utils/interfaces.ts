@@ -4,4 +4,6 @@ export interface Data {
   id: number;
   content: string;
   status: Status;
+  isDragging: Boolean;
+  handleDragging: (dragging: boolean) => void
 }
