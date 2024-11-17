@@ -20,5 +20,5 @@ export const data: Data[] = [
         id: 4,
         content: 'Batman',
         status: 'bad'
-    },
+    }
 ]

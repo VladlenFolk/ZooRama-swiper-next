@@ -7,6 +7,7 @@ interface Props {
   status: Status;
   isDragging: boolean;
   handleDragging: (dragging: boolean) => void;
+  handleUpdateList: (id: number, status: Status) => void
 }
 
 export const ContainerCards = ({
