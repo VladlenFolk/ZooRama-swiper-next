@@ -1,5 +1,5 @@
 import { Title } from "@/components/Title/Title";
-import { DragAndDrop } from "@/components/DragAndDrop/DragAndDrop";
+import { DragAndDrop } from "@/components/DragAndDropCards/DragAndDrop/DragAndDrop";
 
 export default function DnD() {
   return (
