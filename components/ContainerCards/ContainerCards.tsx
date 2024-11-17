@@ -7,7 +7,7 @@ interface Props {
   status: Status;
   isDragging: boolean;
   handleDragging: (dragging: boolean) => void;
-  handleUpdateList: (id: number, status: Status) => void
+  handleUpdateList: (id: number, status: Status) => void;
 }
 
 export const ContainerCards = ({
@@ -15,7 +15,16 @@ export const ContainerCards = ({
   status,
   isDragging,
   handleDragging,
+  handleUpdateList,
 }: Props) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    handleUpdateList(+e.dataTransfer.getData("text"), status);
+    handleDragging(false);
+  };
   return (
     <div
       className={`border-2 border-solid border-[#ffffff8c] rounded-[5px] transition-all delay-300 ease-linear ${
@@ -23,6 +32,8 @@ export const ContainerCards = ({
           ? "bg-[#ffffff17] border-[2px] border-dashed border-[#ffffff8c]"
           : ""
       } `}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
     >
       <p className="rounded-[5px] bg-black text-center py-4 font-bold capitalize">
         {status} hero
