@@ -6,10 +6,19 @@
   html {
     font-family: "Inter", system-ui, sans-serif;
   }
-  :root {
+  .draggable {
+    @apply w-16 h-16 bg-red-700 absolute cursor-grab;
+  
+    --x: 0px;
+    --y: 0px;
+  
     transform: translate(var(--x), var(--y));
   }
+  .draggable:active {
+    @apply cursor-grabbing;
+  }
 }
+
 
 body {
   box-sizing: border-box;

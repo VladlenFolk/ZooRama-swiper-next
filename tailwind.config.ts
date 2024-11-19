@@ -31,6 +31,10 @@ const config: Config = {
       },
       colors: {
         "button-color": "#9198e5",
+        custom: {
+          'x-pos': 'var(--x)',
+          'y-pos': 'var(--y)',
+        },
       },
       boxShadow: {
         "shadow-1": "0 10px 20px rgba(0, 0, 0, 0.3)",//не применяется
@@ -45,10 +49,6 @@ const config: Config = {
           '100%': {opacity: '1', transform: 'translateY(0)'}
         },        
       },
-      translate :{
-        x: "var(--x)",
-        y: "var(--y)"
-      }
     },
   },
   plugins: [],
