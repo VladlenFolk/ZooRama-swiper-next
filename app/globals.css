@@ -6,6 +6,9 @@
   html {
     font-family: "Inter", system-ui, sans-serif;
   }
+  :root {
+    transform: translate(var(--x), var(--y));
+  }
 }
 
 body {
@@ -31,7 +34,7 @@ body {
   --orange600: #fc6a00;
   background-color: #1a1a1a;
   color: #f2f2f2;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: normal;
 }
 
