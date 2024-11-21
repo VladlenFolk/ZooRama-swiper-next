@@ -1,11 +1,11 @@
-import DraggableCard from "@/components/DraggableCard/DraggableCard";
+import DraggableFreeCard from "@/components/DraggableFreeCard/DraggableFreeCard";
 
-const CustomDraggables: React.FC = () => {
+const CustomFreeDragElement: React.FC = () => {
   return (
     <div className="h-screen w-screen bg-gray-500 flex items-center justify-center">
-      <DraggableCard />
+      <DraggableFreeCard />
     </div>
   );
 };
 
-export default CustomDraggables;
+export default CustomFreeDragElement;
