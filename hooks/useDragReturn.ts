@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from "react";
 
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
@@ -13,13 +13,16 @@ const useDrag = (): UseDragReturn => {
   const [startY, setStartY] = useState(0);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
 
+
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const element = elementRef.current;
     if (!element) return;
 
+    element.classList.remove('returning');
+
     const style = window.getComputedStyle(element);
-    const translateX = parseInt(style.getPropertyValue('--x')) || 0;
-    const translateY = parseInt(style.getPropertyValue('--y')) || 0;
+    const translateX = parseInt(style.getPropertyValue("--x")) || 0;
+    const translateY = parseInt(style.getPropertyValue("--y")) || 0;
 
     setStartX(e.pageX - translateX);
     setStartY(e.pageY - translateY);
@@ -33,29 +36,44 @@ const useDrag = (): UseDragReturn => {
     const y = e.pageY - startY;
 
     setTranslate({ x, y });
-
     const element = elementRef.current;
+    const maxTilt = 15; // Максимальный угол наклона (в градусах)
+    const rotationAngle = (x / 100) * maxTilt; // Наклон увеличивается пропорционально
+    
+
+ 
     if (element) {
-      element.style.setProperty('--x', `${x}px`);
-      element.style.setProperty('--y', `${y}px`);
+      element.style.setProperty("--x", `${x}px`);
+      element.style.setProperty("--y", `${y}px`);
+      element.style.setProperty('--rotate', `${Math.max(Math.min(rotationAngle, maxTilt), -maxTilt)}deg`);
     }
   };
 
   const handleMouseUp = () => {
     setDragging(false);
+
+    const element = elementRef.current;
+    if (element) {
+      // Добавляем класс `returning` для включения анимации
+      element.classList.add('returning');
+      // Сброс позиции и наклона
+      element.style.setProperty('--x', '0px');
+      element.style.setProperty('--y', '0px');
+      element.style.setProperty('--rotate', '0deg');
+    }
   };
 
   useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [dragging, startX, startY]);
 
-  return { elementRef, translate, handleMouseDown };
+  return { elementRef, translate,  handleMouseDown };
 };
 
 export default useDrag;

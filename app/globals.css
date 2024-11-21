@@ -7,12 +7,17 @@
     font-family: "Inter", system-ui, sans-serif;
   }
   .draggable {
-    @apply w-16 h-16 bg-red-700 absolute cursor-grab;
+    @apply w-[100px] h-[200px] bg-red-700 absolute cursor-grab;
   
     --x: 0px;
     --y: 0px;
-  
-    transform: translate(var(--x), var(--y));
+    --rotate: 0deg;
+
+    transform: translate(var(--x), var(--y)) rotate(var(--rotate));
+ 
+  }
+  .draggable.returning {
+    transition: transform 0.3s ease-out; /* Включается только при отпускании */
   }
   .draggable:active {
     @apply cursor-grabbing;
