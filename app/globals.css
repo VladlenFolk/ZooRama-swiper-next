@@ -11,13 +11,16 @@
   
     --x: 0px;
     --y: 0px;
-    --rotate: 0deg;
+    --opacity: 1;
 
+    opacity: var(--opacity);
     transform: translate(var(--x), var(--y)) rotate(var(--rotate));
- 
   }
   .draggable.returning {
-    transition: transform 0.3s ease-out; /* Включается только при отпускании */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;; /* Включается только при отпускании */
+  }
+  .draggable.dismissed {
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
   }
   .draggable:active {
     @apply cursor-grabbing;
