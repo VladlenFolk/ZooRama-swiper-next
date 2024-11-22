@@ -4,6 +4,7 @@ interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
   translateX: number;
   handleMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  resetPosition: () => void;
 }
 
 const useDrag = (): UseDragReturn => {
@@ -12,15 +13,17 @@ const useDrag = (): UseDragReturn => {
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
+  const [reset, setReset] = useState(true);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const element = elementRef.current;
     if (!element) return;
 
     element.classList.remove("returning");
+    element.classList.remove("dismissed");
 
     const offsetY = e.nativeEvent.offsetY;
-
+    setReset(false);
     // Размеры элемента
     const rect = element.getBoundingClientRect();
     const height = rect.height;
@@ -44,8 +47,8 @@ const useDrag = (): UseDragReturn => {
     const element = elementRef.current;
     const maxTilt = 15; // Максимальный угол наклона (в градусах)
     const rotationAngle = (x / 100) * maxTilt; // Наклон увеличивается пропорционально
-    console.log(translateX);
-    
+
+
     if (element) {
       // Обновляем смещение
       element.style.setProperty("--x", `${x}px`);
@@ -63,28 +66,49 @@ const useDrag = (): UseDragReturn => {
     }
   };
 
+  const resetPosition = () => {
+    // setReset(true)
+    const element = elementRef.current;
+    if (element) {
+      ;
+      element.style.display = "block";
+      setTimeout(()=>{
+        element.classList.add("returning");
+        element.style.setProperty("--x", "0px");
+        element.style.setProperty("--rotate", "0");
+        element.style.setProperty("--opacity", "1");
+        element.style.pointerEvents = "auto"
+      }, 100)
+    }
+    setTranslateX(0);
+    console.log(reset);
+  };
+
   const handleMouseUp = () => {
     const element = elementRef.current;
     if (element) {
       const x = translateX;
-      if (Math.abs(x) > 150) {
+      // Проверяем, находится ли элемент в процессе возврата
+      const isDismissed = element.classList.contains("dismissed");
+
+      if (Math.abs(x) > 150 && !isDismissed) {
         element.style.setProperty("--x", `${x > 0 ? 500 : -500}px`);
         element.style.setProperty("--opacity", `0`);
         element.classList.add("dismissed");
+        element.classList.add("returning");
         // Удаляем элемент через 300ms после завершения анимации
         setTimeout(() => {
           element.style.display = "none";
         }, 300);
-      } else {
-        // Возвращаем в исходное положение
+      } else if(!isDismissed){
         element.classList.add("returning");
         element.style.setProperty("--x", "0px");
         element.style.setProperty("--y", "0px");
         element.style.setProperty("--opacity", "1");
         element.style.setProperty("--rotate", "0");
-        setTranslateX(0)
+        element.style.pointerEvents = "auto"; // Включаем события указателя обратно
+        setTranslateX(0);
       }
-      console.log(x);
     }
 
     setDragging(false);
@@ -98,9 +122,9 @@ const useDrag = (): UseDragReturn => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [dragging, startX, translateX]);
+  }, [dragging, startX, translateX, handleMouseUp, resetPosition]);
 
-  return { elementRef, translateX, handleMouseDown };
+  return { elementRef, translateX, handleMouseDown, resetPosition };
 };
 
 export default useDrag;

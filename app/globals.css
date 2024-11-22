@@ -7,7 +7,7 @@
     font-family: "Inter", system-ui, sans-serif;
   }
   .draggable {
-    @apply w-[100px] h-[200px] bg-red-700 absolute cursor-grab;
+    @apply w-[100px] h-[200px] bg-red-700 cursor-grab mb-[40px];
   
     --x: 0px;
     --y: 0px;
@@ -17,10 +17,11 @@
     transform: translate(var(--x), var(--y)) rotate(var(--rotate));
   }
   .draggable.returning {
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;; /* Включается только при отпускании */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Включается только при отпускании */
   }
   .draggable.dismissed {
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    pointer-events: none;
   }
   .draggable:active {
     @apply cursor-grabbing;
