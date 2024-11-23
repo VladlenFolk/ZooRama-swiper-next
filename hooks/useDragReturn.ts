@@ -7,13 +7,14 @@ interface UseDragReturn {
   resetPosition: () => void;
 }
 
-const useDrag = (): UseDragReturn => {
+const useDrag = (onDismiss?: () => void): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
   const [reset, setReset] = useState(true);
+
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const element = elementRef.current;
@@ -48,7 +49,6 @@ const useDrag = (): UseDragReturn => {
     const maxTilt = 15; // Максимальный угол наклона (в градусах)
     const rotationAngle = (x / 100) * maxTilt; // Наклон увеличивается пропорционально
 
-
     if (element) {
       // Обновляем смещение
       element.style.setProperty("--x", `${x}px`);
@@ -70,18 +70,16 @@ const useDrag = (): UseDragReturn => {
     // setReset(true)
     const element = elementRef.current;
     if (element) {
-      ;
       element.style.display = "block";
-      setTimeout(()=>{
+      setTimeout(() => {
         element.classList.add("returning");
         element.style.setProperty("--x", "0px");
         element.style.setProperty("--rotate", "0");
         element.style.setProperty("--opacity", "1");
-        element.style.pointerEvents = "auto"
-      }, 100)
+        element.style.pointerEvents = "auto";
+      }, 100);
     }
     setTranslateX(0);
-    console.log(reset);
   };
 
   const handleMouseUp = () => {
@@ -92,15 +90,18 @@ const useDrag = (): UseDragReturn => {
       const isDismissed = element.classList.contains("dismissed");
 
       if (Math.abs(x) > 150 && !isDismissed) {
+        if (onDismiss) onDismiss();
         element.style.setProperty("--x", `${x > 0 ? 500 : -500}px`);
         element.style.setProperty("--opacity", `0`);
         element.classList.add("dismissed");
         element.classList.add("returning");
+
+
         // Удаляем элемент через 300ms после завершения анимации
         setTimeout(() => {
           element.style.display = "none";
         }, 300);
-      } else if(!isDismissed){
+      } else if (!isDismissed) {
         element.classList.add("returning");
         element.style.setProperty("--x", "0px");
         element.style.setProperty("--y", "0px");
