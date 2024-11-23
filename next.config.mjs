@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["avatars.mds.yandex.net"], // Добавляем доверенный домен
+    domains: ["avatars.mds.yandex.net", "i.pinimg.com"], // Добавляем доверенный домен
   },
 };
 

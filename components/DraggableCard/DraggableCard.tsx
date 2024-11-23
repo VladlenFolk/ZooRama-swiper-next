@@ -2,17 +2,23 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
+interface Props {
+  img: string;
+}
 
-const DraggableCard: React.FC = () => {
+const DraggableCard: React.FC<Props> = ({ img }) => {
   const { elementRef, handleMouseDown, resetPosition } = useDrag();
 
   return (
-    <div className="relative flex flex-col justify-center items-center w-[100px] h-[220px] ">
-      <div ref={elementRef} onMouseDown={handleMouseDown} className="draggable rounded-lg relative">
+    <div className="absolute flex items-center justify-center" draggable={false}>
+      <div
+        ref={elementRef}
+        onMouseDown={handleMouseDown}
+        className="draggable rounded-lg"
+      >
         <Image
-          src={
-            "https://avatars.mds.yandex.net/get-entity_search/2069560/952076372/S600xU_2x"
-          }
+          src={img}
+          draggable={false}
           alt="dog"
           layout="fill"
           objectFit="cover"

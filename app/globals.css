@@ -7,7 +7,7 @@
     font-family: "Inter", system-ui, sans-serif;
   }
   .draggable {
-    @apply w-[100px] h-[200px] bg-red-700 cursor-grab mb-[40px];
+    @apply w-[200px] h-[400px]  cursor-grab;
   
     --x: 0px;
     --y: 0px;
