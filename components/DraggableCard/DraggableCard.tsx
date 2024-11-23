@@ -2,31 +2,42 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useState } from "react";
 interface Props {
   img: string;
   handleIncrease: () => void;
+  counter: number;
+  index: number;
+  length: number;
 }
 
-const DraggableCard: React.FC<Props> = ({ img, handleIncrease }) => {
- 
-  const { elementRef, handleMouseDown, resetPosition, translateX } = useDrag(handleIncrease);
-
-
+const DraggableCard: React.FC<Props> = ({
+  img,
+  handleIncrease,
+  counter,
+  index,
+  length,
+}) => {
+  const { elementRef, handleMouseDown, resetPosition } = useDrag(() => {
+    // Проверяем, что функция вызывается только для активной карточки
+    if (length - index === counter) handleIncrease();
+  });
+  const isActive = length - index === counter;
 
   return (
     <div
-      className="absolute flex items-center justify-center"
-      draggable={false}
+      className={`absolute flex items-center justify-center pointer-events-none`}
     >
       <div
         ref={elementRef}
         onMouseDown={handleMouseDown}
-        className="draggable rounded-lg relative"
+        className={`draggable rounded-lg relative ${
+          isActive
+            ? "pointer-events-auto select-auto "
+            : "pointer-events-none select-none"
+        }`}
       >
         <Image
           src={img}
-          draggable={false}
           alt="dog"
           fill
           priority
