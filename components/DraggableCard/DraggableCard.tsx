@@ -2,12 +2,14 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
+import { useEffect } from "react";
 interface Props {
   img: string;
   handleIncrease: () => void;
   counter: number;
   index: number;
   length: number;
+  isResetting: boolean;
 }
 
 const DraggableCard: React.FC<Props> = ({
@@ -16,13 +18,20 @@ const DraggableCard: React.FC<Props> = ({
   counter,
   index,
   length,
+  isResetting,
 }) => {
-  const { elementRef, handleMouseDown, resetPosition } = useDrag(() => {
+  const { elementRef, handleMouseDown, resetAllState } = useDrag(() => {
     // Проверяем, что функция вызывается только для активной карточки
     if (length - index === counter) handleIncrease();
-  });
+  }, isResetting);
   const isActive = length - index === counter;
 
+  useEffect(() => {
+    if (isResetting) {
+      resetAllState();
+    }
+  }, [isResetting]);
+  
   return (
     <div
       className={`absolute flex items-center justify-center pointer-events-none`}

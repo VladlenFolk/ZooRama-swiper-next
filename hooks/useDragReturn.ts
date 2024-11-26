@@ -5,24 +5,28 @@ interface UseDragReturn {
   translateX: number;
   handleMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
   resetPosition: () => void;
+  resetAllState: () => void;
 }
 
-const useDrag = (onDismiss: () => void): UseDragReturn => {
+const useDrag = (
+  onDismiss: () => void,
+  isResetting:boolean
+): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
-  const [reset, setReset] = useState(true);
-  
+
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const element = elementRef.current;
-    if (!element) return;
+    if (!element ) return;
+    // onAnimate();
 
     element.classList.remove("returning", "dismissed");
 
     const offsetY = e.nativeEvent.offsetY;
-    setReset(false);
+
     // Размеры элемента
     const rect = element.getBoundingClientRect();
     const height = rect.height;
@@ -73,9 +77,15 @@ const useDrag = (onDismiss: () => void): UseDragReturn => {
         element.style.setProperty("--x", "0px");
         element.style.setProperty("--rotate", "0");
         element.style.setProperty("--opacity", "1");
-      }, 100);
+      }, 200);
     }
     setTranslateX(0);
+  };
+
+  const resetAllState = () => {
+    resetPosition(); // Сбросить позицию элемента
+    setDragging(false); // Сбросить состояние перетаскивания
+    setStartX(0); // Сбросить начальную позицию
   };
 
   const handleMouseUp = () => {
@@ -86,25 +96,19 @@ const useDrag = (onDismiss: () => void): UseDragReturn => {
 
     // Проверяем, находится ли элемент в процессе возврата
     const isDismissed = element.classList.contains("dismissed");
-
-    if (Math.abs(x) > 150 && !isDismissed) {
-
-      element.style.setProperty("--x", `${x > 0 ? 500 : -500}px`);
+    if (Math.abs(x) > 150 && !isDismissed && !isResetting) {
+      element.style.setProperty("--x", `${x > 0 ? x+100 : x-100}px`);
       element.style.setProperty("--opacity", `0`);
       element.classList.add("dismissed");
-      
-      
+ 
       // Удаляем элемент через 300ms после завершения анимации
       setTimeout(() => {
         //Вызываем счетчик через 0.3 с чтобы карточка "вылетела"
-      if (onDismiss) onDismiss();
-        element.style.display = "none";
+        if (onDismiss) onDismiss(); 
         element.classList.remove("dismissed");
-        element.style.setProperty("--x", "0px");
-        element.style.setProperty("--opacity", "1");
       }, 300);
-
     } else if (!isDismissed) {
+      element.style.display = "block";
       element.classList.add("returning");
       element.style.setProperty("--x", "0px");
       element.style.setProperty("--y", "0px");
@@ -126,7 +130,13 @@ const useDrag = (onDismiss: () => void): UseDragReturn => {
     };
   }, [dragging, startX, translateX, handleMouseUp, resetPosition]);
 
-  return { elementRef, translateX, handleMouseDown, resetPosition };
+  return {
+    elementRef,
+    translateX,
+    handleMouseDown,
+    resetPosition,
+    resetAllState,
+  };
 };
 
 export default useDrag;
