@@ -12,6 +12,7 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+          'rotatingArrow': "url('../public/rotating-arrow-symbol.png')"
       },
       minHeight: {
         "600": "600px",
@@ -41,13 +42,18 @@ const config: Config = {
         "shadow-button": "0px 0px 30px 0px rgba(0,0,0,0.10)",
       },
       animation: {
-        fadeIn : 'fadeIn .3s ease-in-out'
+        fadeIn : 'fadeIn .3s ease-in-out',
+        'rotate-once': 'rotate-once 0.5s ease-in-out',
       },
       keyframes: {
         fadeIn: {
           '0%': {opacity: '0', transform: 'translateY(20px)'},
           '100%': {opacity: '1', transform: 'translateY(0)'}
         },        
+        'rotate-once': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
     },
   },

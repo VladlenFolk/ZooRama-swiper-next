@@ -1,6 +1,7 @@
 "use client";
 
 import DraggableCard from "@/components/DraggableCard/DraggableCard";
+import ResetCard from "@/components/ResetCard/ResetCard";
 import { useState } from "react";
 import { card } from "@/utils/data";
 
@@ -12,6 +13,7 @@ const CustomDraggables: React.FC = () => {
   const handleIncrease = () => {
     setCounter((prev) => prev + 1);
   };
+console.log(counter);
 
   // Функция для сброса карточек
   const handleReset = () => {
@@ -35,12 +37,7 @@ const CustomDraggables: React.FC = () => {
           isResetting={isResetting}
         />
       ))}
-      <button
-        onClick={handleReset}
-        className="absolute bottom-10 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-      >
-        Reset All
-      </button>
+      <ResetCard handleReset = {handleReset}/>
     </div>
   );
 };
