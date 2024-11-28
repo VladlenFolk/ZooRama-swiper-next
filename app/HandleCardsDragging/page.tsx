@@ -13,7 +13,7 @@ const CustomDraggables: React.FC = () => {
   const handleIncrease = () => {
     setCounter((prev) => prev + 1);
   };
-console.log(counter);
+
 
   // Функция для сброса карточек
   const handleReset = () => {
@@ -24,7 +24,7 @@ console.log(counter);
 
   return (
     <div
-      className={`relative w-full h-screen bg-gray-500 flex flex-col items-center justify-center select-none`}
+      className={`relative w-full h-screen bg-gray-500 flex flex-col items-center overflow-hidden justify-center select-none`}
     >
       {card.map((el, index) => (
         <DraggableCard
