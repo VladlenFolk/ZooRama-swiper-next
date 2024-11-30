@@ -10,10 +10,7 @@ const CustomDraggables: React.FC = () => {
   const [counter, setCounter] = useState<number>(0);
   const [isResetting, setIsResetting] = useState(false);
   const [isEndOfCard, setIsEndOfCard] = useState(false);
-  const [currentCounter, setCurrentCounter] = useState(0);
-  const handleCurrentIncrease = () => {
-    setCurrentCounter((prev) => prev + 1);
-  };
+
   // Увеличение счётчика при удалении карточки
   const handleIncrease = () => {
     setCounter((prev) => prev + 1);
@@ -34,7 +31,6 @@ const CustomDraggables: React.FC = () => {
     // setCurrentCounter(0);
     setTimeout(() => {
       setIsResetting(false);
-      setCurrentCounter(0);
     }, 200);
   };
 
@@ -47,12 +43,10 @@ const CustomDraggables: React.FC = () => {
           key={el.id}
           img={el.img}
           handleIncrease={handleIncrease}
-          handleCurrentIncrease={handleCurrentIncrease}
           counter={counter}
           length={card.length - 1}
           index={index}
           isResetting={isResetting}
-          currentCounter={currentCounter}
         />
       ))}
       <ResetCard handleReset={handleReset} isEndOfCard={isEndOfCard} />

@@ -7,23 +7,19 @@ import { useEffect, useState } from "react";
 interface Props {
   img: string;
   handleIncrease: () => void;
-  handleCurrentIncrease: () => void;
   counter: number;
   index: number;
   length: number;
   isResetting: boolean;
-  currentCounter: number;
 }
 
 const DraggableCard: React.FC<Props> = ({
   img,
   handleIncrease,
-  handleCurrentIncrease,
   counter,
   index,
   length,
   isResetting,
-  currentCounter
 }) => {
   const [windowWidth, setWindowWidth] = useState(1024);
  
@@ -32,10 +28,7 @@ const DraggableCard: React.FC<Props> = ({
       // Проверяем, что функция вызывается только для активной карточки
       if (length - index === counter) handleIncrease();
     },
-    isResetting,
-    () => {
-      if (length - index === counter) handleCurrentIncrease();
-    }
+    isResetting
   );
   const isActive = length - index === counter;
 
@@ -58,7 +51,7 @@ const DraggableCard: React.FC<Props> = ({
   //     window.removeEventListener("resize", debouncedHandleResize);
   //   };
   // }, [debouncedHandleResize]);
-  console.log(currentCounter);
+
 
   return (
     <>
@@ -101,7 +94,7 @@ const DraggableCard: React.FC<Props> = ({
               className="pointer-events-none select-none  rounded-lg object-center object-cover"
             />
           </div>
-          {currentCounter !== length+1 && (
+          { Math.abs(translateX) < 150 + 100 && (
             <div className="flex justify-around absolute bottom-[10px] w-full">
               <button className={`w-[31px] h-[31px]`}>
                 <Image
