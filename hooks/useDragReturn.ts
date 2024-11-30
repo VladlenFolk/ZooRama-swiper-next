@@ -10,7 +10,8 @@ interface UseDragReturn {
 
 const useDrag = (
   onDismiss: () => void,
-  isResetting: boolean
+  isResetting: boolean,
+  handleCurrentIncrease:()=> void,
 ): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -107,12 +108,12 @@ const useDrag = (
       element.style.setProperty("--x", `${x > 0 ? x + 100 : x - 100}px`);
       element.style.setProperty("--opacity", `0`);
       element.classList.add("dismissed");
-
+      handleCurrentIncrease();
       // Удаляем элемент через 300ms после завершения анимации
       setTimeout(() => {
         if (onDismiss) onDismiss();
         element.classList.remove("dismissed");
-      }, 300);
+      }, 100);
     } else if (!isDismissed) {
       element.style.display = "block";
       element.classList.add("returning");

@@ -20,7 +20,7 @@
     transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Включается только при отпускании */
   }
   .draggable.dismissed {
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
     pointer-events: none;
   }
   .draggable:active {
