@@ -2,18 +2,24 @@
 
 import DraggableCard from "@/components/DraggableCard/DraggableCard";
 import ResetCard from "@/components/ResetCard/ResetCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { card } from "@/utils/data";
 
 const CustomDraggables: React.FC = () => {
   const [counter, setCounter] = useState<number>(0);
   const [isResetting, setIsResetting] = useState(false);
+  const [isEndOfCard, setIsEndOfCard] = useState(false);
 
   // Увеличение счётчика при удалении карточки
   const handleIncrease = () => {
     setCounter((prev) => prev + 1);
   };
 
+  useEffect(()=>{
+    if(card.length === counter){
+      setIsEndOfCard(true)
+    }
+  }, [card.length, counter])
 
   // Функция для сброса карточек
   const handleReset = () => {
@@ -37,7 +43,7 @@ const CustomDraggables: React.FC = () => {
           isResetting={isResetting}
         />
       ))}
-      <ResetCard handleReset = {handleReset}/>
+      <ResetCard handleReset = {handleReset} isEndOfCard = {isEndOfCard}/>
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Card } from "@/utils/interfaces";
 
 interface Props {
   handleReset: () => void;
+  isEndOfCard: boolean
 }
 
-const ResetCard: React.FC<Props> = ({ handleReset }) => {
+const ResetCard: React.FC<Props> = ({ handleReset, isEndOfCard }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const doResetWithAnimate = () => {
@@ -19,7 +21,7 @@ const ResetCard: React.FC<Props> = ({ handleReset }) => {
     <div
       onClick={doResetWithAnimate}
       className={`w-[200px] h-[400px]  flex flex-col items-center justify-center
-        cursor-pointer  rounded-lg bg-[#c7c7c7] `}
+        cursor-pointer  rounded-lg bg-[#c7c7c7] ${isEndOfCard ?  'pointer-events-auto':  'pointer-events-none'}`}
     >
       <div
         className={`w-[100px] h-[100px] bg-[length:100px_100px]

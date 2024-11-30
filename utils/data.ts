@@ -1,4 +1,4 @@
-import { Data } from "./interfaces";
+import { Data, Card } from "./interfaces";
 
 export const data: Data[] = [
   {
@@ -22,11 +22,6 @@ export const data: Data[] = [
     status: "bad",
   },
 ];
-
-type Card = {
-  id: number;
-  img: string;
-};
 
 export const card: Card[] = [
   {

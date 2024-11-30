@@ -5,3 +5,8 @@ export interface Data {
   content: string;
   status: Status;
 }
+
+export type Card = {
+  id: number;
+  img: string;
+};

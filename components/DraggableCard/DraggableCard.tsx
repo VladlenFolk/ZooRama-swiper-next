@@ -2,7 +2,8 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import useDebounce from "@/hooks/useDebounce";
 interface Props {
   img: string;
   handleIncrease: () => void;
@@ -20,7 +21,8 @@ const DraggableCard: React.FC<Props> = ({
   length,
   isResetting,
 }) => {
-  const { elementRef, handleMouseDown, resetAllState } = useDrag(() => {
+  const [windowWidth, setWindowWidth] = useState(1024);
+  const { elementRef, handleMouseDown, resetAllState, translateX } = useDrag(() => {
     // Проверяем, что функция вызывается только для активной карточки
     if (length - index === counter) handleIncrease();
   }, isResetting);
@@ -31,6 +33,19 @@ const DraggableCard: React.FC<Props> = ({
       resetAllState();
     }
   }, [isResetting]);
+
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+  };
+  const debouncedHandleResize = useDebounce(handleResize, 300);
+
+  useEffect(() => {
+    window.addEventListener("resize", debouncedHandleResize);
+
+    return () => {
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  }, [debouncedHandleResize]);
 
   return (
     <>
@@ -49,12 +64,14 @@ const DraggableCard: React.FC<Props> = ({
               <div
           className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
                 ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"}`}
+                style={{opacity: translateX < -150 ? 1 : 0}}
         >
           NOPE
         </div>
         <div
           className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  transition-opacity duration-200 ease-in-out`}
                       ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"}`}
+                      style={{opacity: translateX > 150 ? 1 : 0}}
         >
           LIKE
         </div>
