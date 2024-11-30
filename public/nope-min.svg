@@ -1,1 +1,29 @@
-<svg width="31" height="31" fill="none" xmlns="http://www.w3.org/2000/svg"><g filter="url(#a)"><g filter="url(#b)"><circle cx="15.5" cy="15.5" r="15.5" fill="url(#c)" fill-opacity=".3"/><circle cx="15.5" cy="15.5" r="15" stroke="url(#d)"/></g><mask id="e" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="1" y="1" width="30" height="30"><path fill="#D9D9D9" stroke="#E7E7E7" d="M1.5 1.5h29v29h-29z"/></mask><g mask="url(#e)"><path d="m15.03 15.494.009-.009-.01-.009-3.743-3.744.96-.961 3.745 3.744.009.009.009-.009 3.744-3.744.962.961-3.745 3.744-.009.01.01.008 3.744 3.744-.962.962-3.744-3.744-.009-.01-.009.01-3.744 3.744-.961-.962 3.744-3.744z" fill="#B40335" stroke="#E7E7E7" stroke-width=".025"/></g></g><defs><linearGradient id="c" x1="21.313" y1="22.604" x2="6.458" y2="1.938" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#787878"/></linearGradient><linearGradient id="d" x1="4.521" y1="1.938" x2="25.833" y2="28.417" gradientUnits="userSpaceOnUse"><stop stop-color="#E7E7E7"/><stop offset="1" stop-color="#CDCDCD"/></linearGradient><filter id="a" x="-15" y="-15" width="61" height="61" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feGaussianBlur in="BackgroundImageFix" stdDeviation="7.5"/><feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_540_2525"/><feBlend in="SourceGraphic" in2="effect1_backgroundBlur_540_2525" result="shape"/></filter><filter id="b" x="-15" y="-15" width="61" height="61" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feGaussianBlur in="BackgroundImageFix" stdDeviation="7.5"/><feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_540_2525"/><feBlend in="SourceGraphic" in2="effect1_backgroundBlur_540_2525" result="shape"/></filter></defs></svg>
+<svg width="31" height="31" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#a)">
+    <g filter="url(#b)">
+      <!-- Внешний круг с прозрачным фоном и черной обводкой -->
+      <circle cx="15.5" cy="15.5" r="15" stroke="#B40335" stroke-width="1.5"/>
+    </g>
+    <mask id="e" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="1" y="1" width="30" height="30">
+      <path fill="#B40335" stroke="#B40335" d="M1.5 1.5h29v29h-29z"/>
+    </mask>
+    <g mask="url(#e)">
+      <!-- Внутренний крестик -->
+      <path d="m15.03 15.494.009-.009-.01-.009-3.743-3.744.96-.961 3.745 3.744.009.009.009-.009 3.744-3.744.962.961-3.745 3.744-.009.01.01.008 3.744 3.744-.962.962-3.744-3.744-.009-.01-.009.01-3.744 3.744-.961-.962 3.744-3.744z" fill="#B40335" stroke="#B40335" stroke-width=".025"/>
+    </g>
+  </g>
+  <defs>
+    <filter id="a" x="-15" y="-15" width="61" height="61" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feGaussianBlur in="BackgroundImageFix" stdDeviation="7.5"/>
+      <feComposite in2="SourceAlpha" operator="in" />
+      <feBlend in="SourceGraphic" result="shape"/>
+    </filter>
+    <filter id="b" x="-15" y="-15" width="61" height="61" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feGaussianBlur in="BackgroundImageFix" stdDeviation="7.5"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+      <feBlend in="SourceGraphic" result="shape"/>
+    </filter>
+  </defs>
+</svg>

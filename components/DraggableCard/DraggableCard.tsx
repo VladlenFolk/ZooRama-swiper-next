@@ -66,14 +66,6 @@ const DraggableCard: React.FC<Props> = ({
           }`}
         >
           <div
-            className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
-                ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"} ${
-              translateX < -150 ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            NOPE
-          </div>
-          <div
             className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  transition-opacity duration-200 ease-in-out`}
                       ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"} ${
               translateX > 150 ? "opacity-100" : "opacity-0"
@@ -81,6 +73,15 @@ const DraggableCard: React.FC<Props> = ({
           >
             LIKE
           </div>
+          <div
+            className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
+                ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"} ${
+              translateX < -150 ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            NOPE
+          </div>
+
           <Image
             src={img}
             alt="dog"
@@ -89,6 +90,28 @@ const DraggableCard: React.FC<Props> = ({
             sizes="(max-width: 768px) 100vw, 300px"
             className="pointer-events-none select-none  rounded-lg object-center object-cover"
           />
+          <div className="flex justify-around absolute bottom-[10px] w-full">
+            <button className={`w-[31px] h-[31px]`}>
+              <Image
+                className="w-[30px] h-[30px]"
+                src="nope-min.svg"
+                alt="отклонить"
+                width="24"
+                height="24"
+                priority
+              />
+            </button>
+            <button className={`w-[31px] h-[31px]`}>
+              <Image
+                className="w-[30px] h-[30px]"
+                src="heart-min.svg"
+                alt="отклонить"
+                width="24"
+                height="24"
+                priority
+              />
+            </button>
+          </div>
         </div>
       </div>
     </>
