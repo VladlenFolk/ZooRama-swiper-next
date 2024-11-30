@@ -19,7 +19,7 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
-
+ 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const element = elementRef.current;
     if (!element) return;
@@ -48,10 +48,13 @@ const useDrag = (
   const handleMouseMove = (e: MouseEvent) => {
     if (!dragging) return;
 
+   
+
     const x = e.pageX - startX;
     const y = e.pageY - startY;
     setTranslateX(x);
     setTranslateY(y);
+
     const element = elementRef.current;
     const maxTilt = 15; // Максимальный угол наклона (в градусах)
     const rotationAngle = (x / 100) * maxTilt; // Наклон увеличивается пропорционально
@@ -127,12 +130,12 @@ const useDrag = (
   useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
-
+   
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [dragging, startX, translateX, handleMouseUp, resetPosition]);
+  }, [dragging, startX, translateX, handleMouseUp, resetPosition, translateX]);
 
   return {
     elementRef,
