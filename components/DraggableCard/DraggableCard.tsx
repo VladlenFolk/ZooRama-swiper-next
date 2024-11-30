@@ -22,11 +22,15 @@ const DraggableCard: React.FC<Props> = ({
   isResetting,
 }) => {
   const [windowWidth, setWindowWidth] = useState(1024);
-  const { elementRef, handleMouseDown, resetAllState, translateX } = useDrag(() => {
-    // Проверяем, что функция вызывается только для активной карточки
-    if (length - index === counter) handleIncrease();
-  }, isResetting);
+  const { elementRef, handleMouseDown, resetAllState, translateX } = useDrag(
+    () => {
+      // Проверяем, что функция вызывается только для активной карточки
+      if (length - index === counter) handleIncrease();
+    },
+    isResetting
+  );
   const isActive = length - index === counter;
+  console.log(translateX);
 
   useEffect(() => {
     if (isResetting) {
@@ -51,7 +55,7 @@ const DraggableCard: React.FC<Props> = ({
     <>
       <div
         className={`absolute flex items-center justify-center pointer-events-none`}
-      >    
+      >
         <div
           ref={elementRef}
           onMouseDown={handleMouseDown}
@@ -61,20 +65,22 @@ const DraggableCard: React.FC<Props> = ({
               : "pointer-events-none select-none"
           }`}
         >
-              <div
-          className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
-                ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"}`}
-                style={{opacity: translateX < -150 ? 1 : 0}}
-        >
-          NOPE
-        </div>
-        <div
-          className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  transition-opacity duration-200 ease-in-out`}
-                      ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"}`}
-                      style={{opacity: translateX > 150 ? 1 : 0}}
-        >
-          LIKE
-        </div>
+          <div
+            className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
+                ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"} ${
+              translateX < -150 ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            NOPE
+          </div>
+          <div
+            className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  transition-opacity duration-200 ease-in-out`}
+                      ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"} ${
+              translateX > 150 ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            LIKE
+          </div>
           <Image
             src={img}
             alt="dog"
