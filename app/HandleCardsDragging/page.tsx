@@ -18,6 +18,8 @@ const CustomDraggables: React.FC = () => {
   useEffect(()=>{
     if(card.length === counter){
       setIsEndOfCard(true)
+    } else if (isEndOfCard) {
+      setIsEndOfCard(false)
     }
   }, [card.length, counter])
 
