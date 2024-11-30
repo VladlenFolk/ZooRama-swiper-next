@@ -36,20 +36,7 @@ const DraggableCard: React.FC<Props> = ({
     <>
       <div
         className={`absolute flex items-center justify-center pointer-events-none`}
-      >
-        {" "}
-        <div
-          className={`${"absolute z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
-                ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"}`}
-        >
-          NOPE
-        </div>
-        <div
-          className={`${`absolute z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  transition-opacity duration-200 ease-in-out`}
-                      ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"}`}
-        >
-          LIKE
-        </div>
+      >    
         <div
           ref={elementRef}
           onMouseDown={handleMouseDown}
@@ -59,6 +46,18 @@ const DraggableCard: React.FC<Props> = ({
               : "pointer-events-none select-none"
           }`}
         >
+              <div
+          className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none opacity-1 transition-opacity duration-200 ease-in-out"} 
+                ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"}`}
+        >
+          NOPE
+        </div>
+        <div
+          className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  transition-opacity duration-200 ease-in-out`}
+                      ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"}`}
+        >
+          LIKE
+        </div>
           <Image
             src={img}
             alt="dog"
