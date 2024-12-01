@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import useDebounce from "./useDebounce";
 
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
@@ -8,6 +9,7 @@ interface UseDragReturn {
   ) => void;
   resetPosition: () => void;
   resetAllState: () => void;
+  windowWidth: number;
 }
 
 const useDrag = (
@@ -21,7 +23,24 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
+  const [windowWidth, setWindowWidth] = useState(1024);
 
+  
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+  };
+  const debouncedHandleResize = useDebounce(handleResize, 300);
+
+  useEffect(() => {
+    window.addEventListener("resize", debouncedHandleResize);
+
+    return () => {
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  }, [debouncedHandleResize]);
+
+
+  //Движение
   const handleDown = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
   ) => {
@@ -54,6 +73,8 @@ const useDrag = (
     } else setIsTop("top");
   };
 
+
+  //Движение
   const handleMove = (e: MouseEvent | TouchEvent) => {
     if (!dragging) return;
 
@@ -87,6 +108,38 @@ const useDrag = (
     }
   };
 
+  //Отпускание
+  const handleEnd = () => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const x = translateX;
+
+    // Проверяем, находится ли элемент в процессе возврата
+    const isDismissed = element.classList.contains("dismissed");
+    if (Math.abs(x) > windowWidth / 10 && !isDismissed && !isResetting) {
+      element.style.setProperty("--x", `${x > 0 ? x + 100 : x - 100}px`);
+      element.style.setProperty("--opacity", `0`);
+      element.classList.add("dismissed");
+      // Удаляем элемент через 300ms после завершения анимации
+      setTimeout(() => {
+        if (onDismiss) onDismiss();
+        element.classList.remove("dismissed");
+      }, 100);
+    } else if (!isDismissed) {
+      element.style.display = "block";
+      element.classList.add("returning");
+      element.style.setProperty("--x", "0px");
+      element.style.setProperty("--y", "0px");
+      element.style.setProperty("--opacity", "1");
+      element.style.setProperty("--rotate", "0");
+      setTranslateX(0);
+    }
+    setDragging(false);
+  };
+
+
+  //Сброс состояний
   const resetPosition = () => {
     const element = elementRef.current;
     if (element) {
@@ -108,34 +161,6 @@ const useDrag = (
     setStartX(0); // Сбросить начальную позицию
   };
 
-  const handleEnd = () => {
-    const element = elementRef.current;
-    if (!element) return;
-
-    const x = translateX;
-
-    // Проверяем, находится ли элемент в процессе возврата
-    const isDismissed = element.classList.contains("dismissed");
-    if (Math.abs(x) > 150 && !isDismissed && !isResetting) {
-      element.style.setProperty("--x", `${x > 0 ? x + 100 : x - 100}px`);
-      element.style.setProperty("--opacity", `0`);
-      element.classList.add("dismissed");
-      // Удаляем элемент через 300ms после завершения анимации
-      setTimeout(() => {
-        if (onDismiss) onDismiss();
-        element.classList.remove("dismissed");
-      }, 100);
-    } else if (!isDismissed) {
-      element.style.display = "block";
-      element.classList.add("returning");
-      element.style.setProperty("--x", "0px");
-      element.style.setProperty("--y", "0px");
-      element.style.setProperty("--opacity", "1");
-      element.style.setProperty("--rotate", "0");
-      setTranslateX(0);
-    }
-    setDragging(false);
-  };
 
   useEffect(() => {
     document.addEventListener("mousemove", handleMove);
@@ -149,7 +174,7 @@ const useDrag = (
       document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("touchend", handleEnd);
     };
-  }, [dragging, startX, translateX, handleEnd, resetPosition, translateX]);
+  }, [dragging, startX, translateX, handleEnd, resetPosition, translateX, windowWidth]);
 
   return {
     elementRef,
@@ -157,6 +182,7 @@ const useDrag = (
     handleDown,
     resetPosition,
     resetAllState,
+    windowWidth
   };
 };
 
