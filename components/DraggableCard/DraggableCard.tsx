@@ -23,7 +23,7 @@ const DraggableCard: React.FC<Props> = ({
 }) => {
   const [windowWidth, setWindowWidth] = useState(1024);
 
-  const { elementRef, handleMouseDown, resetAllState, translateX } = useDrag(
+  const { elementRef, handleDown, resetAllState, translateX } = useDrag(
     () => {
       // Проверяем, что функция вызывается только для активной карточки
       if (length - index === counter) handleIncrease();
@@ -59,7 +59,8 @@ const DraggableCard: React.FC<Props> = ({
         <div className="relative">
           <div
             ref={elementRef}
-            onMouseDown={handleMouseDown}
+            onMouseDown={handleDown}
+            onTouchStart={handleDown}
             className={`draggable rounded-lg relative ${
               isActive
                 ? "pointer-events-auto select-auto "

@@ -3,14 +3,16 @@ import { useRef, useState, useEffect } from "react";
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
   translateX: number;
-  handleMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  handleDown: (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => void;
   resetPosition: () => void;
   resetAllState: () => void;
 }
 
 const useDrag = (
   onDismiss: () => void,
-  isResetting: boolean,
+  isResetting: boolean
 ): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -19,15 +21,22 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
- 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+
+  const handleDown = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
     const element = elementRef.current;
     if (!element) return;
-    // onAnimate();
 
     element.classList.remove("returning", "dismissed");
 
-    const offsetY = e.nativeEvent.offsetY;
+    const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
+    const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
+
+    const offsetY =
+      "touches" in e
+        ? clientY - element.getBoundingClientRect().top
+        : e.nativeEvent.offsetY;
 
     // Размеры элемента
     const rect = element.getBoundingClientRect();
@@ -37,21 +46,22 @@ const useDrag = (
       parseInt(window.getComputedStyle(element).getPropertyValue("--x")) || 0;
     const translateY =
       parseInt(window.getComputedStyle(element).getPropertyValue("--y")) || 0;
-    setStartX(e.pageX - translateX);
-    setStartY(e.pageY - translateY);
+    setStartX(clientX - translateX);
+    setStartY(clientY - translateY);
     setDragging(true);
     if (offsetY > height / 2) {
       setIsTop("bottom");
     } else setIsTop("top");
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMove = (e: MouseEvent | TouchEvent) => {
     if (!dragging) return;
 
-   
+    const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
+    const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
 
-    const x = e.pageX - startX;
-    const y = e.pageY - startY;
+    const x = clientX - startX;
+    const y = clientY - startY;
     setTranslateX(x);
     setTranslateY(y);
 
@@ -98,7 +108,7 @@ const useDrag = (
     setStartX(0); // Сбросить начальную позицию
   };
 
-  const handleMouseUp = () => {
+  const handleEnd = () => {
     const element = elementRef.current;
     if (!element) return;
 
@@ -128,19 +138,23 @@ const useDrag = (
   };
 
   useEffect(() => {
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-   
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleMove);
+    document.addEventListener("touchend", handleEnd);
+
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleMove);
+      document.removeEventListener("touchend", handleEnd);
     };
-  }, [dragging, startX, translateX, handleMouseUp, resetPosition, translateX]);
+  }, [dragging, startX, translateX, handleEnd, resetPosition, translateX]);
 
   return {
     elementRef,
     translateX,
-    handleMouseDown,
+    handleDown,
     resetPosition,
     resetAllState,
   };
