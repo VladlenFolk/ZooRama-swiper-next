@@ -25,7 +25,6 @@ const useDrag = (
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
   const [windowWidth, setWindowWidth] = useState(1024);
 
-  
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
   };
@@ -39,7 +38,6 @@ const useDrag = (
     };
   }, [debouncedHandleResize]);
 
-
   //Движение
   const handleDown = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
@@ -48,7 +46,9 @@ const useDrag = (
     if (!element) return;
 
     element.classList.remove("returning", "dismissed");
-
+    // Добавляем оптимизацию для анимации
+    element.style.willChange = "transform, opacity";
+    
     const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
     const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
 
@@ -72,7 +72,6 @@ const useDrag = (
       setIsTop("bottom");
     } else setIsTop("top");
   };
-
 
   //Движение
   const handleMove = (e: MouseEvent | TouchEvent) => {
@@ -124,6 +123,7 @@ const useDrag = (
       // Удаляем элемент через 300ms после завершения анимации
       setTimeout(() => {
         if (onDismiss) onDismiss();
+        element.style.willChange = "auto";
         element.classList.remove("dismissed");
       }, 100);
     } else if (!isDismissed) {
@@ -137,7 +137,6 @@ const useDrag = (
     }
     setDragging(false);
   };
-
 
   //Сброс состояний
   const resetPosition = () => {
@@ -161,7 +160,6 @@ const useDrag = (
     setStartX(0); // Сбросить начальную позицию
   };
 
-
   useEffect(() => {
     document.addEventListener("mousemove", handleMove);
     document.addEventListener("mouseup", handleEnd);
@@ -174,7 +172,15 @@ const useDrag = (
       document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("touchend", handleEnd);
     };
-  }, [dragging, startX, translateX, handleEnd, resetPosition, translateX, windowWidth]);
+  }, [
+    dragging,
+    startX,
+    translateX,
+    handleEnd,
+    resetPosition,
+    translateX,
+    windowWidth,
+  ]);
 
   return {
     elementRef,
@@ -182,7 +188,7 @@ const useDrag = (
     handleDown,
     resetPosition,
     resetAllState,
-    windowWidth
+    windowWidth,
   };
 };
 
