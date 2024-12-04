@@ -21,20 +21,21 @@ const DraggableCard: React.FC<Props> = ({
   length,
   isResetting,
 }) => {
-  const { elementRef, handleDown, resetAllState, translateX, windowWidth } =
-    useDrag(() => {
-      // Проверяем, что функция вызывается только для активной карточки
-      if (length - index === counter) handleIncrease();
-    }, isResetting);
   const isActive = length - index === counter;
+  const { elementRef, handleDown, resetAllState, translateX } = useDrag(() => {
+    // Проверяем, что функция вызывается только для активной карточки
+    if (isActive) handleIncrease();
+  }, isResetting);
+
 
   useEffect(() => {
     if (isResetting) {
       resetAllState();
     }
   }, [isResetting]);
-  console.log(translateX);
 
+  console.log(translateX);
+  const windowWidth = window.innerWidth;
   // Максимальное значение при котором opacity становится 1
   const maxX = windowWidth / 10 + 10;
 
