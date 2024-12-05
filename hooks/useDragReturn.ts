@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import useDebounce from "./useDebounce";
+import { debounce } from "lodash";
 
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
@@ -9,6 +10,7 @@ interface UseDragReturn {
   ) => void;
   resetPosition: () => void;
   resetAllState: () => void;
+  windowWidth: number;
 }
 
 const useDrag = (
@@ -22,25 +24,30 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
-  // const [windowWidth, setWindowWidth] = useState(1024);
+  const [windowWidth, setWindowWidth] = useState(1024);
+  const requestRef = useRef<number | null>(null);
 
-  // const handleResize = () => {
-  //   setWindowWidth(window.innerWidth);
-  // };
-  // const debouncedHandleResize = useDebounce(handleResize, 300);
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+  };
+  const debouncedHandleResize = useDebounce(handleResize, 300);
 
-  // useEffect(() => {
-  //   window.addEventListener("resize", debouncedHandleResize);
+  useEffect(() => {
+    window.addEventListener("resize", debouncedHandleResize);
 
-  //   return () => {
-  //     window.removeEventListener("resize", debouncedHandleResize);
-  //   };
-  // }, [debouncedHandleResize]);
+    return () => {
+      window.removeEventListener("resize", debouncedHandleResize);
+    };
+  }, [debouncedHandleResize]);
+
+  // Получение текущих координат и поворота элемента
+  
 
   //Движение
   const handleDown = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
   ) => {
+    e.stopPropagation();
     const element = elementRef.current;
     if (!element) return;
 
@@ -50,28 +57,35 @@ const useDrag = (
 
     const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
     const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
-
-    // const offsetY =
-    //   "touches" in e
-    //     ? clientY - element.getBoundingClientRect().top
-    //     : e.nativeEvent.offsetY;
+    setStartX(clientX);
+    setStartY(clientY);
+    setDragging(true);
+    // setStartX(clientX - translateX);
+    // setStartY(clientY - translateY);
+  
 
     // Размеры элемента
     const rect = element.getBoundingClientRect();
     const offsetY = clientY - rect.top;
     const height = rect.height;
 
-    // const translateX =
-    //   parseInt(window.getComputedStyle(element).getPropertyValue("--x")) || 0;
-    // const translateY =
-    //   parseInt(window.getComputedStyle(element).getPropertyValue("--y")) || 0;
-    setStartX(clientX - translateX);
-    setStartY(clientY - translateY);
-    setDragging(true);
-
     if (offsetY > height / 2) {
       setIsTop("bottom");
     } else setIsTop("top");
+  };
+
+  const updatePosition = (x: number, y: number) => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const maxTilt = 15;
+    const rotationAngle = (x / 100) * maxTilt;
+    const rotate =
+    isTop === "bottom"
+      ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
+      : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
+
+    element.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg)`;
   };
 
   //Движение
@@ -88,21 +102,13 @@ const useDrag = (
       setTranslateX(x);
       setTranslateY(y);
 
-      const element = elementRef.current;
-
-      if (element) {
-        const maxTilt = 15; // Максимальный угол наклона (в градусах)
-        const rotationAngle = (x / 100) * maxTilt; // Наклон увеличивается пропорционально
-
-        const rotate =
-          isTop === "bottom"
-            ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
-            : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
-
-        // Обновляем позицию и наклон элемента через transform
-        element.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
-      }
-    },
+        // Обновляем позицию и наклон элемента
+        if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        requestRef.current = requestAnimationFrame(() => {
+          updatePosition(x, y); // Обновляем позицию только здесь
+        });
+      },
+    // },
     [dragging, startX, startY, isTop]
   );
 
@@ -110,6 +116,11 @@ const useDrag = (
   const handleEnd = useCallback(() => {
     const element = elementRef.current;
     if (!element) return;
+
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+      requestRef.current = null;
+    }
 
     const x = translateX;
     const y = translateY;
@@ -119,11 +130,11 @@ const useDrag = (
         "0"
     );
     // Проверяем, находится ли элемент в процессе возврата
-    const isDismissed = element.classList.contains("dismissed");
-    if (Math.abs(x) > window.innerWidth / 10 && !isDismissed && !isResetting) {
-      element.style.transform = `translate(${
+    // const isDismissed = element.classList.contains("dismissed");
+    if (Math.abs(x) >windowWidth / 10  ) {
+      element.style.transform = `translate3d(${
         x > 0 ? x + 100 : x - 100
-      }px, ${y}px) rotate(${currentRotation}deg)`;
+      }px, ${y}px, 0) rotate3d(0, 0, 1, ${currentRotation}deg)`;
       element.style.opacity = "0";
       element.classList.add("dismissed");
 
@@ -133,9 +144,9 @@ const useDrag = (
         element.style.willChange = "auto";
         element.classList.remove("dismissed");
       }, 100);
-    } else if (!isDismissed) {
+    } else  {
       element.classList.add("returning");
-      element.style.transform = `translate(0px, 0px) rotate(0deg)`;
+      element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
       element.style.opacity = "1";
       setTranslateX(0);
       setTranslateY(0);
@@ -149,12 +160,11 @@ const useDrag = (
     if (element) {
       setTimeout(() => {
         element.classList.add("returning");
-        element.style.transform = `translate(0px, 0px) rotate(0deg)`;
+        element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
         element.style.opacity = "1";
 
         setTranslateX(0);
         setTranslateY(0);
-
       }, 100);
     }
   };
@@ -169,24 +179,25 @@ const useDrag = (
   };
 
   useEffect(() => {
-    document.addEventListener("mousemove", handleMove);
-    document.addEventListener("touchmove", handleMove);
+    if (dragging) {
+      document.addEventListener("mousemove", handleMove);
+      document.addEventListener("mouseup", handleEnd);
+      document.addEventListener("touchmove", handleMove);
+      document.addEventListener("touchend", handleEnd);
+    } else {
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleMove);
+      document.removeEventListener("touchend", handleEnd);
+    }
 
     return () => {
       document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("touchmove", handleMove);
-    };
-  }, [dragging, startX, translateX, handleEnd, resetPosition, translateX]);
-
-  useEffect(() => {
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchend", handleEnd);
-
-    return () => {
       document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("touchend", handleEnd);
     };
-  }, [handleEnd]);
+  }, [dragging, handleMove, handleEnd]);
 
   return {
     elementRef,
@@ -194,6 +205,7 @@ const useDrag = (
     handleDown,
     resetPosition,
     resetAllState,
+    windowWidth
   };
 };
 

@@ -26,18 +26,18 @@ export const data: Data[] = [
 export const card: Card[] = [
   {
     id: 1,
-    img: "https://avatars.mds.yandex.net/get-altay/1880508/2a0000016e256861de17b2bc4fbf2ce81b1a/XXL",
+    img: "/dog1.webp",
   },
   {
     id: 2,
-    img: "https://i.pinimg.com/736x/61/b7/72/61b772864029519c45dcbdf78680cdbf.jpg",
+    img: "/dog2.webp",
   },
   {
     id: 3,
-    img: "https://avatars.mds.yandex.net/get-entity_search/5513561/952894097/S600xU_2x",
+    img: "/dog3.webp",
   },
   {
     id: 4,
-    img: "https://avatars.mds.yandex.net/get-entity_search/2069560/952076372/S600xU_2x",
+    img: "/dog4.webp",
   },
 ];

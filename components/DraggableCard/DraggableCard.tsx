@@ -2,7 +2,7 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import useDebounce from "@/hooks/useDebounce";
 interface Props {
   img: string;
@@ -13,7 +13,7 @@ interface Props {
   isResetting: boolean;
 }
 
-const DraggableCard: React.FC<Props> = ({
+const DraggableCard: React.FC<Props> = memo(({
   img,
   handleIncrease,
   counter,
@@ -22,20 +22,23 @@ const DraggableCard: React.FC<Props> = ({
   isResetting,
 }) => {
   const isActive = length - index === counter;
-  const { elementRef, handleDown, resetAllState, translateX } = useDrag(() => {
+  const { elementRef, handleDown, resetAllState, translateX, windowWidth } = useDrag(() => {
     // Проверяем, что функция вызывается только для активной карточки
     if (isActive) handleIncrease();
   }, isResetting);
 
 
-  useEffect(() => {
-    if (isResetting) {
+ // Оптимизированный сброс состояния с requestAnimationFrame
+ useEffect(() => {
+  if (isResetting) {
+    requestAnimationFrame(() => {
       resetAllState();
-    }
-  }, [isResetting]);
+    });
+  }
+}, [isResetting, resetAllState]);
 
-  console.log(translateX);
-  const windowWidth = window.innerWidth;
+console.log('hi');
+
   // Максимальное значение при котором opacity становится 1
   const maxX = windowWidth / 10 + 10;
 
@@ -51,8 +54,8 @@ const DraggableCard: React.FC<Props> = ({
         <div className="relative">
           <div
             ref={elementRef}
-            onMouseDown={handleDown}
-            onTouchStart={handleDown}
+            onMouseDown={isActive ? handleDown : undefined}
+            onTouchStart={isActive ? handleDown : undefined}
             className={`draggable rounded-lg relative ${
               isActive
                 ? "pointer-events-auto select-auto "
@@ -135,6 +138,8 @@ const DraggableCard: React.FC<Props> = ({
       </div>
     </>
   );
-};
+});
+
+DraggableCard.displayName = "DraggableCard";
 
 export default DraggableCard;
