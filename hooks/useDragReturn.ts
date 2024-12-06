@@ -43,11 +43,14 @@ const useDrag = (
     };
   }, [debouncedHandleResize]);
 
-
   const handleDown = useCallback(
     (
       e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
     ) => {
+      e.stopPropagation();
+      const element = elementRef.current;
+      if (!element) return;
+      element.style.willChange = "transform, opacity";
       const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
       const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
       setStartX(clientX);
@@ -94,7 +97,7 @@ const useDrag = (
     if (!element) return;
 
     const { x, y } = lastPosition.current;
-
+    element.style.willChange = "auto";
     // Если перемещение достаточно велико, считаем, что карточка должна исчезнуть
     if (Math.abs(x) > windowWidth / 10) {
       element.style.setProperty("--x", `${x > 0 ? x + 20 : x - 20}px`);

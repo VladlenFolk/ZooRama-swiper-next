@@ -51,7 +51,7 @@ const DraggableCard: React.FC<Props> = memo(
               ref={elementRef}
               onMouseDown={isActive ? handleDown : undefined}
               onTouchStart={isActive ? handleDown : undefined}
-              className={`draggable rounded-lg relative ${
+              className={`draggable z-0 rounded-lg relative ${
                 isActive
                   ? "pointer-events-auto select-auto "
                   : "pointer-events-none select-none"
