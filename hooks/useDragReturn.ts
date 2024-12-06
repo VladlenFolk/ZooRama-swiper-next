@@ -24,55 +24,54 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
-  const [windowWidth, setWindowWidth] = useState(1024);
-  const requestRef = useRef<number | null>(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const lastPosition = useRef({ x: 0, y: 0 });
-  const handleResize = () => {
-    setWindowWidth(window.innerWidth);
-  };
-  const debouncedHandleResize = useDebounce(handleResize, 300);
+  const requestRef = useRef<number | null>(null);
+
+  const handleResize = useDebounce(
+    () => setWindowWidth(window.innerWidth),
+    300
+  );
 
   useEffect(() => {
-    window.addEventListener("resize", debouncedHandleResize);
-
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", debouncedHandleResize);
+      window.removeEventListener("resize", handleResize);
     };
-  }, [debouncedHandleResize]);
+  }, [handleResize]);
 
-  // Получение текущих координат и поворота элемента
+  const handleDown = useCallback(
+    (
+      e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+    ) => {
+      const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
+      const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
+      setStartX(clientX);
+      setStartY(clientY);
+      setDragging(true);
+    },
+    []
+  );
 
-  //Движение
-  const handleDown = (
-    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
-  ) => {
-    e.stopPropagation();
-    const element = elementRef.current;
-    if (!element) return;
+  const handleMove = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      if (!dragging) return;
+      const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
+      const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
+      lastPosition.current = {
+        x: clientX - startX,
+        y: clientY - startY,
+      };
+    },
+    [dragging, startX, startY]
+  );
 
-    element.classList.remove("returning", "dismissed");
-    // Добавляем оптимизацию для анимации
-    element.style.willChange = "transform, opacity";
+  const updatePosition = useCallback(() => {
+    if (!dragging || !elementRef.current) return;
+    const { x, y } = lastPosition.current;
 
-    const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
-    const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
-    setStartX(clientX);
-    setStartY(clientY);
-    setDragging(true);
-
-    // Размеры элемента
-    const rect = element.getBoundingClientRect();
-    const offsetY = clientY - rect.top;
-    const height = rect.height;
-
-    if (offsetY > height / 2) {
-      setIsTop("bottom");
-    } else setIsTop("top");
-  };
-
-  const updatePosition = (x: number, y: number) => {
-    const element = elementRef.current;
-    if (!element) return;
+    elementRef.current.style.setProperty("--x", `${x}px`);
+    elementRef.current.style.setProperty("--y", `${y}px`);
 
     const maxTilt = 15;
     const rotationAngle = (x / 100) * maxTilt;
@@ -81,130 +80,71 @@ const useDrag = (
         ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
         : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
 
-    requestAnimationFrame(() => {
-      elementRef.current!.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg`;
-    });
-  };
+    elementRef.current.style.setProperty("--rotate", `${rotate}deg`);
 
-  //Движение
-  const throttledHandleMove = useCallback(
-    throttle(
-      (e: MouseEvent | TouchEvent) => {
-        if (!dragging) return;
+    requestRef.current = requestAnimationFrame(updatePosition);
+  }, [dragging, isTop]);
 
-        const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
-        const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
-
-        const x = clientX - startX;
-        const y = clientY - startY;
-
-        // Сохраняем последние координаты
-        // lastPosition.current = { x, y };
-        setTranslateX(x);
-        setTranslateY(y);
-        updatePosition(x, y); // Обновляем позицию только здесь
-      },
-      16, // Интервал троттлинга — 60 FPS
-      { trailing: true }
-    ), // Ограничиваем вызов функции до 60 раз в секунду (1000 ms / 60 ≈ 16 ms)
-    [dragging, startX, startY, updatePosition]
-  );
-
-  //Отпускание
   const handleEnd = useCallback(() => {
     const element = elementRef.current;
     if (!element) return;
 
+    const { x, y } = lastPosition.current;
+
+    // Если перемещение достаточно велико, считаем, что карточка должна исчезнуть
+    if (Math.abs(x) > windowWidth / 10) {
+      element.style.setProperty(
+        "--x",
+        `${x > 0 ? x+20 : x-20}px`
+      );
+      element.style.setProperty("--opacity", `0`);
+      element.classList.add("dismissed");
+
+      setTimeout(() => {
+        if (onDismiss) onDismiss();
+      }, 300); // Время анимации
+    } else {
+      // Если перемещение недостаточно велико, возвращаем карточку в исходное положение
+      element.style.setProperty("--x", `0px`);
+      element.style.setProperty("--y", `0px`);
+      element.style.setProperty("--opacity", `1`);
+      element.classList.add("returning");
+      setTimeout(() => {
+        element.classList.remove("returning");
+      }, 300);
+    }
+
+    setDragging(false);
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
       requestRef.current = null;
     }
-
-    const x = translateX;
-    const y = translateY;
-
-    // const { x, y } = lastPosition.current;
-    // Считываем текущий наклон элемента
-    const currentRotation = parseFloat(
-      element.style.transform.match(/rotate\((-?\d+(?:\.\d+)?)deg\)/)?.[1] ||
-        "0"
-    );
-    // Проверяем, находится ли элемент в процессе возврата
-    // const isDismissed = element.classList.contains("dismissed");
-    if (Math.abs(x) > windowWidth / 10) {
-      element.style.transform = `translate3d(${
-        x > 0 ? x + 100 : x - 100
-      }px, ${y}px, 0) rotate(${currentRotation}deg)`;
-      element.style.opacity = "0";
-      element.classList.add("dismissed");
-
-      // Удаляем элемент через 300ms после завершения анимации
-      setTimeout(() => {
-        if (onDismiss) onDismiss();
-        element.style.willChange = "auto";
-        element.classList.remove("dismissed");
-      }, 100);
-    } else {
-      element.classList.add("returning");
-      element.style.transform = `translate3d(0px, 0px, 0) rotate(0deg)`;
-      element.style.opacity = "1";
-      setTranslateX(0);
-      setTranslateY(0);
-    }
-    setDragging(false);
   }, [windowWidth, onDismiss]);
-
-  //Сброс состояний
-  const resetPosition = () => {
-    const element = elementRef.current;
-    if (element) {
-      setTimeout(() => {
-        element.classList.add("returning");
-        element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
-        element.style.opacity = "1";
-
-        setTranslateX(0);
-        setTranslateY(0);
-      }, 100);
-    }
-  };
-
-  const resetAllState = () => {
-    // Сбросить позицию элемента
-    setDragging(false); // Сбросить состояние перетаскивания
-    setStartX(0); // Сбросить начальную позицию
-    setTimeout(() => {
-      resetPosition();
-    }, 200);
-  };
-
-  
 
   useEffect(() => {
     if (dragging) {
-      const handleMoveBound = throttledHandleMove.bind(null);
-      const handleEndBound = handleEnd.bind(null);
+      document.addEventListener("mousemove", handleMove);
+      document.addEventListener("mouseup", handleEnd);
+      document.addEventListener("touchmove", handleMove);
+      document.addEventListener("touchend", handleEnd);
 
-      document.addEventListener("mousemove", handleMoveBound);
-      document.addEventListener("mouseup", handleEndBound);
-      document.addEventListener("touchmove", handleMoveBound);
-      document.addEventListener("touchend", handleEndBound);
+      requestRef.current = requestAnimationFrame(updatePosition);
 
       return () => {
-        document.removeEventListener("mousemove", handleMoveBound);
-        document.removeEventListener("mouseup", handleEndBound);
-        document.removeEventListener("touchmove", handleMoveBound);
-        document.removeEventListener("touchend", handleEndBound);
+        document.removeEventListener("mousemove", handleMove);
+        document.removeEventListener("mouseup", handleEnd);
+        document.removeEventListener("touchmove", handleMove);
+        document.removeEventListener("touchend", handleEnd);
       };
     }
-  }, [dragging, throttledHandleMove, handleEnd]);
+  }, [dragging, handleMove, handleEnd, updatePosition]);
 
   return {
     elementRef,
-    translateX,
+    translateX: lastPosition.current.x,
     handleDown,
-    resetPosition,
-    resetAllState,
+    resetPosition: () => setTranslateX(0),
+    resetAllState: () => setDragging(false),
     windowWidth,
   };
 };
