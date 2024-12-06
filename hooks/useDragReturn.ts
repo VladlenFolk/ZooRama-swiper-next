@@ -99,7 +99,7 @@ const useDrag = (
       );
       element.style.setProperty("--opacity", `0`);
       element.classList.add("dismissed");
-
+      
       setTimeout(() => {
         if (onDismiss) onDismiss();
       }, 300); // Время анимации
@@ -108,18 +108,39 @@ const useDrag = (
       element.style.setProperty("--x", `0px`);
       element.style.setProperty("--y", `0px`);
       element.style.setProperty("--opacity", `1`);
+      element.style.setProperty("--rotate", `0deg`);
+      lastPosition.current = {
+        x: 0,
+        y: 0,
+      };
       element.classList.add("returning");
       setTimeout(() => {
         element.classList.remove("returning");
       }, 300);
     }
-
     setDragging(false);
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
       requestRef.current = null;
     }
   }, [windowWidth, onDismiss]);
+
+  const  resetAllState = (): void=>{
+    const element = elementRef.current;
+    element!.style.setProperty("--x", `0px`);
+    element!.style.setProperty("--y", `0px`);
+    element!.style.setProperty("--opacity", `1`);
+    element!.style.setProperty("--rotate", `0deg`);
+    lastPosition.current = {
+      x: 0,
+      y: 0,
+    };
+    element!.classList.add("returning");
+      setTimeout(() => {
+        element!.classList.remove("returning");
+      }, 300);
+  }
+
 
   useEffect(() => {
     if (dragging) {
@@ -144,7 +165,7 @@ const useDrag = (
     translateX: lastPosition.current.x,
     handleDown,
     resetPosition: () => setTranslateX(0),
-    resetAllState: () => setDragging(false),
+    resetAllState,
     windowWidth,
   };
 };
