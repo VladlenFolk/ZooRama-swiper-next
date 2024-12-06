@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import useDebounce from "./useDebounce";
-import { debounce } from "lodash";
 
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
