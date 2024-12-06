@@ -24,21 +24,25 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
   const lastPosition = useRef({ x: 0, y: 0 });
   const requestRef = useRef<number | null>(null);
 
-  const handleResize = useDebounce(
-    () => setWindowWidth(window.innerWidth),
-    300
-  );
+  const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+  };
+  const debouncedHandleResize = useDebounce(handleResize, 300);
 
   useEffect(() => {
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", debouncedHandleResize);
+
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", debouncedHandleResize);
     };
-  }, [handleResize]);
+  }, [debouncedHandleResize]);
+
 
   const handleDown = useCallback(
     (
@@ -93,13 +97,10 @@ const useDrag = (
 
     // Если перемещение достаточно велико, считаем, что карточка должна исчезнуть
     if (Math.abs(x) > windowWidth / 10) {
-      element.style.setProperty(
-        "--x",
-        `${x > 0 ? x+20 : x-20}px`
-      );
+      element.style.setProperty("--x", `${x > 0 ? x + 20 : x - 20}px`);
       element.style.setProperty("--opacity", `0`);
       element.classList.add("dismissed");
-      
+
       setTimeout(() => {
         if (onDismiss) onDismiss();
       }, 300); // Время анимации
@@ -125,7 +126,7 @@ const useDrag = (
     }
   }, [windowWidth, onDismiss]);
 
-  const  resetAllState = (): void=>{
+  const resetAllState = (): void => {
     const element = elementRef.current;
     element!.style.setProperty("--x", `0px`);
     element!.style.setProperty("--y", `0px`);
@@ -136,11 +137,10 @@ const useDrag = (
       y: 0,
     };
     element!.classList.add("returning");
-      setTimeout(() => {
-        element!.classList.remove("returning");
-      }, 300);
-  }
-
+    setTimeout(() => {
+      element!.classList.remove("returning");
+    }, 300);
+  };
 
   useEffect(() => {
     if (dragging) {
