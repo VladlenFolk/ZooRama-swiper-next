@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import useDebounce from "./useDebounce";
+import { throttle } from "./useThrottle";
 
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
@@ -25,7 +26,7 @@ const useDrag = (
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
   const [windowWidth, setWindowWidth] = useState(1024);
   const requestRef = useRef<number | null>(null);
-
+  const lastPosition = useRef({ x: 0, y: 0 });
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
   };
@@ -40,7 +41,6 @@ const useDrag = (
   }, [debouncedHandleResize]);
 
   // Получение текущих координат и поворота элемента
-  
 
   //Движение
   const handleDown = (
@@ -59,9 +59,6 @@ const useDrag = (
     setStartX(clientX);
     setStartY(clientY);
     setDragging(true);
-    // setStartX(clientX - translateX);
-    // setStartY(clientY - translateY);
-  
 
     // Размеры элемента
     const rect = element.getBoundingClientRect();
@@ -80,16 +77,16 @@ const useDrag = (
     const maxTilt = 15;
     const rotationAngle = (x / 100) * maxTilt;
     const rotate =
-    isTop === "bottom"
-      ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
-      : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
+      isTop === "bottom"
+        ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
+        : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
 
     element.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg)`;
   };
 
   //Движение
-  const handleMove = useCallback(
-    (e: MouseEvent | TouchEvent) => {
+  const throttledHandleMove = useCallback(
+    throttle((e) => {
       if (!dragging) return;
 
       const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
@@ -98,16 +95,14 @@ const useDrag = (
       const x = clientX - startX;
       const y = clientY - startY;
 
-      setTranslateX(x);
-      setTranslateY(y);
+      // setTranslateX(x);
+      // setTranslateY(y);
+      
+      // Сохраняем последние координаты
+      lastPosition.current = { x, y };
 
-        // Обновляем позицию и наклон элемента
-        if (requestRef.current) cancelAnimationFrame(requestRef.current);
-        requestRef.current = requestAnimationFrame(() => {
-          updatePosition(x, y); // Обновляем позицию только здесь
-        });
-      },
-    // },
+      updatePosition(x, y); // Обновляем позицию только здесь
+    }, 16), // Ограничиваем вызов функции до 60 раз в секунду (1000 ms / 60 ≈ 16 ms)
     [dragging, startX, startY, isTop]
   );
 
@@ -121,8 +116,10 @@ const useDrag = (
       requestRef.current = null;
     }
 
-    const x = translateX;
-    const y = translateY;
+    // const x = translateX;
+    // const y = translateY;
+
+    const { x, y } = lastPosition.current;
     // Считываем текущий наклон элемента
     const currentRotation = parseFloat(
       element.style.transform.match(/rotate\((-?\d+(?:\.\d+)?)deg\)/)?.[1] ||
@@ -130,7 +127,7 @@ const useDrag = (
     );
     // Проверяем, находится ли элемент в процессе возврата
     // const isDismissed = element.classList.contains("dismissed");
-    if (Math.abs(x) >windowWidth / 10  ) {
+    if (Math.abs(x) > windowWidth / 10) {
       element.style.transform = `translate3d(${
         x > 0 ? x + 100 : x - 100
       }px, ${y}px, 0) rotate3d(0, 0, 1, ${currentRotation}deg)`;
@@ -143,7 +140,7 @@ const useDrag = (
         element.style.willChange = "auto";
         element.classList.remove("dismissed");
       }, 100);
-    } else  {
+    } else {
       element.classList.add("returning");
       element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
       element.style.opacity = "1";
@@ -179,24 +176,22 @@ const useDrag = (
 
   useEffect(() => {
     if (dragging) {
-      document.addEventListener("mousemove", handleMove);
-      document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove);
-      document.addEventListener("touchend", handleEnd);
-    } else {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleEnd);
-    }
+      const handleMoveBound = throttledHandleMove.bind(null);
+      const handleEndBound = handleEnd.bind(null);
 
-    return () => {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleEnd);
-    };
-  }, [dragging, handleMove, handleEnd]);
+      document.addEventListener("mousemove", handleMoveBound);
+      document.addEventListener("mouseup", handleEndBound);
+      document.addEventListener("touchmove", handleMoveBound);
+      document.addEventListener("touchend", handleEndBound);
+
+      return () => {
+        document.removeEventListener("mousemove", handleMoveBound);
+        document.removeEventListener("mouseup", handleEndBound);
+        document.removeEventListener("touchmove", handleMoveBound);
+        document.removeEventListener("touchend", handleEndBound);
+      };
+    }
+  }, [dragging, throttledHandleMove, handleEnd]);
 
   return {
     elementRef,
@@ -204,7 +199,7 @@ const useDrag = (
     handleDown,
     resetPosition,
     resetAllState,
-    windowWidth
+    windowWidth,
   };
 };
 
