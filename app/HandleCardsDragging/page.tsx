@@ -4,6 +4,7 @@ import DraggableCard from "@/components/DraggableCard/DraggableCard";
 import ResetCard from "@/components/ResetCard/ResetCard";
 import { useEffect, useState } from "react";
 import { card } from "@/utils/data";
+
 import Image from "next/image";
 
 const CustomDraggables: React.FC = () => {
@@ -15,6 +16,7 @@ const CustomDraggables: React.FC = () => {
   const handleIncrease = () => {
     setCounter((prev) => prev + 1);
   };
+
 
   useEffect(() => {
     if (card.length === counter) {
