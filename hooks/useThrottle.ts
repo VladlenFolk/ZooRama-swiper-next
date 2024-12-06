@@ -1,25 +1,29 @@
-export function throttle<T extends (...args: any[]) => void>(
-    func: T,
-    limit: number
-  ): (this: ThisParameterType<T>, ...args: Parameters<T>) => void {
+export function throttle(
+    func: (...args: any[]) => void,
+    limit: number,
+    options: { trailing?: boolean } = {}
+  ) {
     let lastFunc: ReturnType<typeof setTimeout> | null = null;
     let lastRan: number | null = null;
   
-    return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
-      const context = this; // Сохраняем контекст вызова
+    return function (this: any, ...args: any[]) {
+      const context = this;
       const now = Date.now();
   
       if (!lastRan) {
-        func.apply(context, args); // Вызываем функцию сразу
+        func.apply(context, args);
         lastRan = now;
       } else {
-        if (lastFunc) clearTimeout(lastFunc); // Убираем предыдущий таймер
-        lastFunc = setTimeout(() => {
-          if (lastRan && now - lastRan >= limit) {
+        if (now - lastRan >= limit) {
+          func.apply(context, args);
+          lastRan = now;
+        } else if (options.trailing) {
+          clearTimeout(lastFunc!);
+          lastFunc = setTimeout(() => {
             func.apply(context, args);
-            lastRan = now;
-          }
-        }, limit - (now - (lastRan || 0)));
+            lastRan = Date.now();
+          }, limit - (now - lastRan));
+        }
       }
     };
   }

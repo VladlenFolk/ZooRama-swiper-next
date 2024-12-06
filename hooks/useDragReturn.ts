@@ -81,29 +81,33 @@ const useDrag = (
         ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
         : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
 
-    element.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg)`;
+    requestAnimationFrame(() => {
+      elementRef.current!.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg`;
+    });
   };
 
   //Движение
   const throttledHandleMove = useCallback(
-    throttle((e) => {
-      if (!dragging) return;
+    throttle(
+      (e: MouseEvent | TouchEvent) => {
+        if (!dragging) return;
 
-      const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
-      const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
+        const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
+        const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
 
-      const x = clientX - startX;
-      const y = clientY - startY;
+        const x = clientX - startX;
+        const y = clientY - startY;
 
-      // setTranslateX(x);
-      // setTranslateY(y);
-      
-      // Сохраняем последние координаты
-      lastPosition.current = { x, y };
-
-      updatePosition(x, y); // Обновляем позицию только здесь
-    }, 16), // Ограничиваем вызов функции до 60 раз в секунду (1000 ms / 60 ≈ 16 ms)
-    [dragging, startX, startY, isTop]
+        // Сохраняем последние координаты
+        // lastPosition.current = { x, y };
+        setTranslateX(x);
+        setTranslateY(y);
+        updatePosition(x, y); // Обновляем позицию только здесь
+      },
+      16, // Интервал троттлинга — 60 FPS
+      { trailing: true }
+    ), // Ограничиваем вызов функции до 60 раз в секунду (1000 ms / 60 ≈ 16 ms)
+    [dragging, startX, startY, updatePosition]
   );
 
   //Отпускание
@@ -116,10 +120,10 @@ const useDrag = (
       requestRef.current = null;
     }
 
-    // const x = translateX;
-    // const y = translateY;
+    const x = translateX;
+    const y = translateY;
 
-    const { x, y } = lastPosition.current;
+    // const { x, y } = lastPosition.current;
     // Считываем текущий наклон элемента
     const currentRotation = parseFloat(
       element.style.transform.match(/rotate\((-?\d+(?:\.\d+)?)deg\)/)?.[1] ||
@@ -130,7 +134,7 @@ const useDrag = (
     if (Math.abs(x) > windowWidth / 10) {
       element.style.transform = `translate3d(${
         x > 0 ? x + 100 : x - 100
-      }px, ${y}px, 0) rotate3d(0, 0, 1, ${currentRotation}deg)`;
+      }px, ${y}px, 0) rotate(${currentRotation}deg)`;
       element.style.opacity = "0";
       element.classList.add("dismissed");
 
@@ -142,13 +146,13 @@ const useDrag = (
       }, 100);
     } else {
       element.classList.add("returning");
-      element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
+      element.style.transform = `translate3d(0px, 0px, 0) rotate(0deg)`;
       element.style.opacity = "1";
       setTranslateX(0);
       setTranslateY(0);
     }
     setDragging(false);
-  }, [translateX, isResetting, onDismiss]);
+  }, [windowWidth, onDismiss]);
 
   //Сброс состояний
   const resetPosition = () => {
@@ -173,6 +177,8 @@ const useDrag = (
       resetPosition();
     }, 200);
   };
+
+  
 
   useEffect(() => {
     if (dragging) {
