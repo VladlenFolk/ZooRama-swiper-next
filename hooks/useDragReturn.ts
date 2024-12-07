@@ -24,24 +24,38 @@ const useDrag = (
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
+  const [elementRect, setElementRect] = useState<DOMRect | null>(null); // Состояние для хранения размеров элемента
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1024
   );
   const lastPosition = useRef({ x: 0, y: 0 });
   const requestRef = useRef<number | null>(null);
 
-  const handleResize = () => {
-    setWindowWidth(window.innerWidth);
-  };
-  const debouncedHandleResize = useDebounce(handleResize, 300);
+  // Обработчик изменения размера окна
+  const handleResize = useDebounce(
+    () => setWindowWidth(window.innerWidth),
+    300
+  );
 
   useEffect(() => {
-    window.addEventListener("resize", debouncedHandleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [handleResize]);
 
-    return () => {
-      window.removeEventListener("resize", debouncedHandleResize);
+  // Инициализация размеров элемента только один раз
+  useEffect(() => {
+    const updateElementRect = () => {
+      if (elementRef.current) {
+        setElementRect(elementRef.current.getBoundingClientRect());
+      }
     };
-  }, [debouncedHandleResize]);
+
+    // Обновляем размеры при монтировании компонента и на каждом изменении окна
+    updateElementRect();
+    window.addEventListener("resize", updateElementRect);
+
+    return () => window.removeEventListener("resize", updateElementRect);
+  }, []);
 
   const handleDown = useCallback(
     (
@@ -49,13 +63,27 @@ const useDrag = (
     ) => {
       e.stopPropagation();
       const element = elementRef.current;
-      if (!element) return;
-      element.style.willChange = "transform, opacity";
+      // Не проверяем на null, предполагаем, что элемент уже отрендерен
+      element!.style.willChange = "transform, opacity";
+
       const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
       const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
+
       setStartX(clientX);
       setStartY(clientY);
       setDragging(true);
+
+
+      if (elementRect) {
+        const offsetY = clientY - elementRect.top;
+        const height = elementRect.height;
+
+        if (offsetY > height / 2) {
+          setIsTop("bottom");
+        } else {
+          setIsTop("top");
+        }
+      }
     },
     []
   );
@@ -76,21 +104,22 @@ const useDrag = (
   const updatePosition = useCallback(() => {
     if (!dragging || !elementRef.current) return;
     const { x, y } = lastPosition.current;
+    const element = elementRef.current;
 
-    elementRef.current.style.setProperty("--x", `${x}px`);
-    elementRef.current.style.setProperty("--y", `${y}px`);
 
-    const maxTilt = 15;
-    const rotationAngle = (x / 100) * maxTilt;
-    const rotate =
-      isTop === "bottom"
-        ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
-        : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
+    let rotation = Math.max(Math.min((x / 100) * 15, 15), -15);
+    if (isTop === "bottom") {
+      rotation = -rotation;
+    }
 
-    elementRef.current.style.setProperty("--rotate", `${rotate}deg`);
+    // Устанавливаем ограниченные значения для перемещения
+    element.style.setProperty("--x", `${x}px`);
+    element.style.setProperty("--y", `${y}px`);
+    elementRef.current.style.setProperty("--rotate", `${rotation}deg`);
+    
 
     requestRef.current = requestAnimationFrame(updatePosition);
-  }, [dragging, isTop]);
+  }, [dragging, windowWidth, isTop]);
 
   const handleEnd = useCallback(() => {
     const element = elementRef.current;
