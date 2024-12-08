@@ -14,16 +14,22 @@ interface Props {
   isResetting: boolean;
 }
 
-
 const DraggableCard: React.FC<Props> = memo(
   ({ img, handleIncrease, counter, index, length, isResetting }) => {
     const isActive = length - index === counter;
-    const { elementRef, handleDown, resetAllState, translateX, windowWidth } =
-      useDrag(() => {
-        // Проверяем, что функция вызывается только для активной карточки
-        if (isActive) handleIncrease();
-      }, isResetting);
-      useRenderCount(`DraggableCard-${index}`);
+    const {
+      elementRef,
+      handleDown,
+      resetAllState,
+      translateX,
+      windowWidth,
+      handleMove,
+      handleEnd,
+    } = useDrag(() => {
+      // Проверяем, что функция вызывается только для активной карточки
+      if (isActive) handleIncrease();
+    });
+    useRenderCount(`DraggableCard-${index}`);
     // Оптимизированный сброс состояния с requestAnimationFrame
     useEffect(() => {
       if (isResetting) {
@@ -32,7 +38,6 @@ const DraggableCard: React.FC<Props> = memo(
         });
       }
     }, [isResetting, resetAllState]);
-
 
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;
@@ -44,18 +49,22 @@ const DraggableCard: React.FC<Props> = memo(
     return (
       <>
         <div
-          className={`absolute flex items-center justify-center pointer-events-none`}
+          className={`absolute flex items-center justify-center pointer-events-none z-${index}`}
         >
           <div className="relative">
             <div
               ref={elementRef}
               onMouseDown={isActive ? handleDown : undefined}
               onTouchStart={isActive ? handleDown : undefined}
-              className={`draggable z-0 rounded-lg relative ${
+              onMouseMove={isActive ? handleMove : undefined}
+              onMouseUp={isActive ? handleEnd : undefined}
+              onTouchMove={isActive ? handleMove : undefined}
+              onTouchEnd={isActive ? handleEnd : undefined}
+              className={`draggable rounded-lg relative ${
                 isActive
                   ? "pointer-events-auto select-auto "
                   : "pointer-events-none select-none"
-              }`}
+              } ${isActive ? "will-change-transform will-change-opacity" : ""}`}
             >
               <div
                 className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  `}
