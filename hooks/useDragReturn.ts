@@ -17,7 +17,7 @@ const useDrag = (
   isResetting: boolean
 ): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const [dragging, setDragging] = useState(false);
+  const dragging = useRef(false);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [translateX, setTranslateX] = useState(0);
@@ -58,7 +58,7 @@ const useDrag = (
     const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
     setStartX(clientX);
     setStartY(clientY);
-    setDragging(true);
+    dragging.current = true;
     // setStartX(clientX - translateX);
     // setStartY(clientY - translateY);
   
@@ -91,7 +91,9 @@ const useDrag = (
   const handleMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
       if (!dragging) return;
-
+      if (dragging.current) {
+        e.preventDefault(); // Предотвращаем прокрутку
+      }
       const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
       const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
 
@@ -116,6 +118,7 @@ const useDrag = (
     const element = elementRef.current;
     if (!element) return;
 
+    dragging.current = false;
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
       requestRef.current = null;
@@ -150,7 +153,7 @@ const useDrag = (
       setTranslateX(0);
       setTranslateY(0);
     }
-    setDragging(false);
+
   }, [translateX, isResetting, onDismiss]);
 
   //Сброс состояний
@@ -170,7 +173,7 @@ const useDrag = (
 
   const resetAllState = () => {
     // Сбросить позицию элемента
-    setDragging(false); // Сбросить состояние перетаскивания
+    dragging.current = false; // Сбросить состояние перетаскивания
     setStartX(0); // Сбросить начальную позицию
     setTimeout(() => {
       resetPosition();
@@ -178,7 +181,7 @@ const useDrag = (
   };
 
   useEffect(() => {
-    if (dragging) {
+    if (dragging.current) {
       document.addEventListener("mousemove", handleMove);
       document.addEventListener("mouseup", handleEnd);
       document.addEventListener("touchmove", handleMove, { passive: false });
