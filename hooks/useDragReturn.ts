@@ -40,7 +40,6 @@ const useDrag = (
   }, [debouncedHandleResize]);
 
   // Получение текущих координат и поворота элемента
-  
 
   //Движение
   const handleDown = (
@@ -61,7 +60,6 @@ const useDrag = (
     dragging.current = true;
     // setStartX(clientX - translateX);
     // setStartY(clientY - translateY);
-  
 
     // Размеры элемента
     const rect = element.getBoundingClientRect();
@@ -80,11 +78,13 @@ const useDrag = (
     const maxTilt = 15;
     const rotationAngle = (x / 100) * maxTilt;
     const rotate =
-    isTop === "bottom"
-      ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
-      : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
+      isTop === "bottom"
+        ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
+        : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
 
-    element.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg)`;
+    element.style.setProperty("--x", `${x}px`);
+    element.style.setProperty("--y", `${y}px`);
+    element.style.setProperty("--rotate", `${rotate}deg`);
   };
 
   //Движение
@@ -103,12 +103,12 @@ const useDrag = (
       setTranslateX(x);
       setTranslateY(y);
 
-        // Обновляем позицию и наклон элемента
-        if (requestRef.current) cancelAnimationFrame(requestRef.current);
-        requestRef.current = requestAnimationFrame(() => {
-          updatePosition(x, y); // Обновляем позицию только здесь
-        });
-      },
+      // Обновляем позицию и наклон элемента
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      requestRef.current = requestAnimationFrame(() => {
+        updatePosition(x, y); // Обновляем позицию только здесь
+      });
+    },
     // },
     [dragging, startX, startY, isTop]
   );
@@ -133,10 +133,10 @@ const useDrag = (
     );
     // Проверяем, находится ли элемент в процессе возврата
     // const isDismissed = element.classList.contains("dismissed");
-    if (Math.abs(x) >windowWidth / 10  ) {
-      element.style.transform = `translate3d(${
-        x > 0 ? x + 100 : x - 100
-      }px, ${y}px, 0) rotate3d(0, 0, 1, ${currentRotation}deg)`;
+    if (Math.abs(x) > windowWidth / 10) {
+      element.style.setProperty("--x", `${x > 0 ? x + 100 : x - 100}px`);
+      element.style.setProperty("--y", `${y}px`);
+      element.style.setProperty("--rotate", `${currentRotation}deg`);
       element.style.opacity = "0";
       element.classList.add("dismissed");
 
@@ -146,14 +146,15 @@ const useDrag = (
         element.style.willChange = "auto";
         element.classList.remove("dismissed");
       }, 100);
-    } else  {
+    } else {
       element.classList.add("returning");
-      element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
+      element.style.setProperty("--x", "0px");
+      element.style.setProperty("--y", "0px");
+      element.style.setProperty("--rotate", "0deg");
       element.style.opacity = "1";
       setTranslateX(0);
       setTranslateY(0);
     }
-
   }, [translateX, isResetting, onDismiss]);
 
   //Сброс состояний
@@ -162,7 +163,9 @@ const useDrag = (
     if (element) {
       setTimeout(() => {
         element.classList.add("returning");
-        element.style.transform = `translate3d(0px, 0px, 0) rotate3d(0, 0, 1, 0deg)`;
+        element.style.setProperty("--x", "0px");
+        element.style.setProperty("--y", "0px");
+        element.style.setProperty("--rotate", "0deg");
         element.style.opacity = "1";
 
         setTranslateX(0);
@@ -207,7 +210,7 @@ const useDrag = (
     handleDown,
     resetPosition,
     resetAllState,
-    windowWidth
+    windowWidth,
   };
 };
 
