@@ -71,7 +71,7 @@ const useDrag = (
     } else setIsTop("top");
   };
 
-  const updatePosition = (x: number, y: number) => {
+  const updatePosition = useCallback((x: number, y: number) => {
     const element = elementRef.current;
     if (!element) return;
 
@@ -85,7 +85,7 @@ const useDrag = (
     element.style.setProperty("--x", `${x}px`);
     element.style.setProperty("--y", `${y}px`);
     element.style.setProperty("--rotate", `${rotate}deg`);
-  };
+  }, [isTop]);
 
   //Движение
   const handleMove = useCallback(
@@ -119,6 +119,7 @@ const useDrag = (
     if (!element) return;
 
     dragging.current = false;
+    
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
       requestRef.current = null;
@@ -128,12 +129,14 @@ const useDrag = (
     const y = translateY;
     // Считываем текущий наклон элемента
     const currentRotation = parseFloat(
-      element.style.transform.match(/rotate\((-?\d+(?:\.\d+)?)deg\)/)?.[1] ||
-        "0"
+      getComputedStyle(element).getPropertyValue("--rotate") || "0"
     );
+console.log(x);
+
     // Проверяем, находится ли элемент в процессе возврата
     // const isDismissed = element.classList.contains("dismissed");
     if (Math.abs(x) > windowWidth / 10) {
+      
       element.style.setProperty("--x", `${x > 0 ? x + 100 : x - 100}px`);
       element.style.setProperty("--y", `${y}px`);
       element.style.setProperty("--rotate", `${currentRotation}deg`);
