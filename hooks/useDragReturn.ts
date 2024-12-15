@@ -13,19 +13,18 @@ interface UseDragReturn {
 }
 
 const useDrag = (
-  onDismiss: () => void,
-  isResetting: boolean
+  onDismiss?: () => void,
 ): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const dragging = useRef(false);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [translateX, setTranslateX] = useState(0);
-  const [translateY, setTranslateY] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
   const [windowWidth, setWindowWidth] = useState(1024);
   const requestRef = useRef<number | null>(null);
-
+  const lastPositionRef = useRef({ x: 0, y: 0 });
+  
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
   };
@@ -39,27 +38,24 @@ const useDrag = (
     };
   }, [debouncedHandleResize]);
 
-  // Получение текущих координат и поворота элемента
 
-  //Движение
+
+   // Получение текущих координат и поворота элемента
   const handleDown = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
   ) => {
     e.stopPropagation();
     const element = elementRef.current;
     if (!element) return;
-
-    element.classList.remove("returning", "dismissed");
+    element.style.transition =''
     // Добавляем оптимизацию для анимации
     element.style.willChange = "transform, opacity";
-
+   
     const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
     const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
     setStartX(clientX);
     setStartY(clientY);
     dragging.current = true;
-    // setStartX(clientX - translateX);
-    // setStartY(clientY - translateY);
 
     // Размеры элемента
     const rect = element.getBoundingClientRect();
@@ -71,26 +67,30 @@ const useDrag = (
     } else setIsTop("top");
   };
 
-  const updatePosition = useCallback((x: number, y: number) => {
-    const element = elementRef.current;
-    if (!element) return;
+  const updatePosition = useCallback(
+    (x: number, y: number) => {
+      const element = elementRef.current;
+      if (!element) return;
 
-    const maxTilt = 15;
-    const rotationAngle = (x / 100) * maxTilt;
-    const rotate =
-      isTop === "bottom"
-        ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
-        : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
+      const maxTilt = 15;
+      const rotationAngle = (x / 100) * maxTilt;
+      const rotate =
+        isTop === "bottom"
+          ? -Math.min(maxTilt, Math.max(-maxTilt, rotationAngle))
+          : Math.min(maxTilt, Math.max(-maxTilt, rotationAngle));
 
-    element.style.setProperty("--x", `${x}px`);
-    element.style.setProperty("--y", `${y}px`);
-    element.style.setProperty("--rotate", `${rotate}deg`);
-  }, [isTop]);
+      element.style.setProperty("--x", `${x}px`);
+      element.style.setProperty("--y", `${y}px`);
+      element.style.setProperty("--rotate", `${rotate}deg`);
+
+    },
+    [isTop]
+  );
 
   //Движение
   const handleMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
-      if (!dragging) return;
+      if (!dragging.current) return;
       if (dragging.current) {
         e.preventDefault(); // Предотвращаем прокрутку
       }
@@ -100,8 +100,9 @@ const useDrag = (
       const x = clientX - startX;
       const y = clientY - startY;
 
+      lastPositionRef.current = { x, y };
+
       setTranslateX(x);
-      setTranslateY(y);
 
       // Обновляем позицию и наклон элемента
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -109,8 +110,7 @@ const useDrag = (
         updatePosition(x, y); // Обновляем позицию только здесь
       });
     },
-    // },
-    [dragging, startX, startY, isTop]
+    [dragging, startX, startY, updatePosition]
   );
 
   //Отпускание
@@ -119,61 +119,47 @@ const useDrag = (
     if (!element) return;
 
     dragging.current = false;
-    
+
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
       requestRef.current = null;
     }
 
-    const x = translateX;
-    const y = translateY;
-    // Считываем текущий наклон элемента
-    const currentRotation = parseFloat(
-      getComputedStyle(element).getPropertyValue("--rotate") || "0"
-    );
-console.log(x);
-
+    const { x, y } = lastPositionRef.current;
+  
     // Проверяем, находится ли элемент в процессе возврата
-    // const isDismissed = element.classList.contains("dismissed");
     if (Math.abs(x) > windowWidth / 10) {
-      
-      element.style.setProperty("--x", `${x > 0 ? x + 100 : x - 100}px`);
-      element.style.setProperty("--y", `${y}px`);
-      element.style.setProperty("--rotate", `${currentRotation}deg`);
+      element.style.setProperty("--x", `${x > 0 ? x + 300 : x - 300}px`);
       element.style.opacity = "0";
-      element.classList.add("dismissed");
-
+      element.style.transition =
+        "transform 0.3s ease-out, opacity 0.3s ease-out";
       // Удаляем элемент через 300ms после завершения анимации
       setTimeout(() => {
         if (onDismiss) onDismiss();
         element.style.willChange = "auto";
-        element.classList.remove("dismissed");
       }, 100);
     } else {
-      element.classList.add("returning");
+      element.style.transition =
+        "transform 0.3s ease-out, opacity 0.3s ease-out";
       element.style.setProperty("--x", "0px");
       element.style.setProperty("--y", "0px");
       element.style.setProperty("--rotate", "0deg");
       element.style.opacity = "1";
       setTranslateX(0);
-      setTranslateY(0);
     }
-  }, [translateX, isResetting, onDismiss]);
+  }, [onDismiss, windowWidth]);
 
   //Сброс состояний
   const resetPosition = () => {
     const element = elementRef.current;
     if (element) {
-      setTimeout(() => {
-        element.classList.add("returning");
+        element.style.transition =
+        "transform 0.3s ease-out, opacity 0.3s ease-out";
         element.style.setProperty("--x", "0px");
         element.style.setProperty("--y", "0px");
         element.style.setProperty("--rotate", "0deg");
         element.style.opacity = "1";
-
         setTranslateX(0);
-        setTranslateY(0);
-      }, 100);
     }
   };
 
@@ -186,6 +172,7 @@ console.log(x);
     }, 200);
   };
 
+  //Если вынести слушатели в элемент, то при выходе из окна/элемента карточка будет тормозить
   useEffect(() => {
     if (dragging.current) {
       document.addEventListener("mousemove", handleMove);
@@ -198,7 +185,6 @@ console.log(x);
       document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("touchend", handleEnd);
     }
-
     return () => {
       document.removeEventListener("mousemove", handleMove);
       document.removeEventListener("mouseup", handleEnd);

@@ -33,7 +33,7 @@ const CustomDraggables: React.FC = () => {
     // setCurrentCounter(0);
     setTimeout(() => {
       setIsResetting(false);
-    }, 100);
+    }, 300);
   };
 
   return (

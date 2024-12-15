@@ -13,15 +13,9 @@
     --y: 0px;
     --opacity: 1;
 
-    transform: translate3d(var(--x), var(--y), 0) rotate(var(--rotate));
+    transform: translate(var(--x), var(--y)) rotate(var(--rotate));
   }
-  .draggable.returning {
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Включается только при отпускании */
-  }
-  .draggable.dismissed {
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-    pointer-events: none;
-  }
+
   .draggable:active {
     @apply cursor-grabbing;
   }

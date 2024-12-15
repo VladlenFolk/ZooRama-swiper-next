@@ -2,7 +2,7 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect, useState, memo } from "react";
+import { useEffect, memo } from "react";
 import useRenderCount from "@/hooks/useRenderCount";
 
 interface Props {
@@ -22,7 +22,7 @@ const DraggableCard: React.FC<Props> = memo(
       useDrag(() => {
         // Проверяем, что функция вызывается только для активной карточки
         if (isActive) handleIncrease();
-      }, isResetting);
+      });
       useRenderCount(`DraggableCard-${index}`);
     // Оптимизированный сброс состояния с requestAnimationFrame
     useEffect(() => {
