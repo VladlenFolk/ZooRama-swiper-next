@@ -10,11 +10,10 @@ interface UseDragReturn {
   resetPosition: () => void;
   resetAllState: () => void;
   windowWidth: number;
+  pressButtonВisplacement: (direction: "left" | "right") => void;
 }
 
-const useDrag = (
-  onDismiss?: () => void,
-): UseDragReturn => {
+const useDrag = (onDismiss?: () => void): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const dragging = useRef(false);
   const [startX, setStartX] = useState(0);
@@ -24,7 +23,7 @@ const useDrag = (
   const [windowWidth, setWindowWidth] = useState(1024);
   const requestRef = useRef<number | null>(null);
   const lastPositionRef = useRef({ x: 0, y: 0 });
-  
+
   const handleResize = () => {
     setWindowWidth(window.innerWidth);
   };
@@ -38,19 +37,17 @@ const useDrag = (
     };
   }, [debouncedHandleResize]);
 
-
-
-   // Получение текущих координат и поворота элемента
+  // Получение текущих координат и поворота элемента
   const handleDown = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
   ) => {
     e.stopPropagation();
     const element = elementRef.current;
     if (!element) return;
-    element.style.transition =''
+    element.style.transition = "";
     // Добавляем оптимизацию для анимации
     element.style.willChange = "transform, opacity";
-   
+
     const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
     const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
     setStartX(clientX);
@@ -82,7 +79,6 @@ const useDrag = (
       element.style.setProperty("--x", `${x}px`);
       element.style.setProperty("--y", `${y}px`);
       element.style.setProperty("--rotate", `${rotate}deg`);
-
     },
     [isTop]
   );
@@ -91,7 +87,7 @@ const useDrag = (
   const handleMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
       if (!dragging.current) return;
-      if (dragging.current) {
+      if (e.cancelable) {
         e.preventDefault(); // Предотвращаем прокрутку
       }
       const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
@@ -126,7 +122,7 @@ const useDrag = (
     }
 
     const { x, y } = lastPositionRef.current;
-  
+
     // Проверяем, находится ли элемент в процессе возврата
     if (Math.abs(x) > windowWidth / 10) {
       element.style.setProperty("--x", `${x > 0 ? x + 300 : x - 300}px`);
@@ -153,13 +149,13 @@ const useDrag = (
   const resetPosition = () => {
     const element = elementRef.current;
     if (element) {
-        element.style.transition =
+      element.style.transition =
         "transform 0.3s ease-out, opacity 0.3s ease-out";
-        element.style.setProperty("--x", "0px");
-        element.style.setProperty("--y", "0px");
-        element.style.setProperty("--rotate", "0deg");
-        element.style.opacity = "1";
-        setTranslateX(0);
+      element.style.setProperty("--x", "0px");
+      element.style.setProperty("--y", "0px");
+      element.style.setProperty("--rotate", "0deg");
+      element.style.opacity = "1";
+      setTranslateX(0);
     }
   };
 
@@ -167,9 +163,39 @@ const useDrag = (
     // Сбросить позицию элемента
     dragging.current = false; // Сбросить состояние перетаскивания
     setStartX(0); // Сбросить начальную позицию
+    
     setTimeout(() => {
       resetPosition();
     }, 200);
+  };
+
+  const pressButtonВisplacement = (direction: "right" | "left"): void => {
+    const element = elementRef.current;
+    if (element) {
+      element.style.willChange = "transform, opacity";
+      direction === "right"
+        ? setTranslateX(windowWidth / 10)
+        : setTranslateX(-windowWidth / 10);
+
+        const displacement =
+          direction === "right"
+            ? windowWidth / 5 + 100
+            : -(windowWidth / 5 + 100);
+
+        element.style.transition =
+          "transform 0.3s ease-out, opacity 0.3s ease-out";
+
+        element.style.setProperty("--x", `${displacement}px`);
+        element.style.setProperty(
+          "--rotate",
+          direction === "right" ? "15deg" : "-15deg"
+        );
+        element.style.opacity = "0";
+      setTimeout(() => {
+        if (onDismiss) onDismiss();
+        element.style.willChange = "auto";
+      }, 100);
+    }
   };
 
   //Если вынести слушатели в элемент, то при выходе из окна/элемента карточка будет тормозить
@@ -177,7 +203,7 @@ const useDrag = (
     if (dragging.current) {
       document.addEventListener("mousemove", handleMove);
       document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove, { passive: false });
+      document.addEventListener("touchmove", handleMove);
       document.addEventListener("touchend", handleEnd);
     } else {
       document.removeEventListener("mousemove", handleMove);
@@ -200,6 +226,7 @@ const useDrag = (
     resetPosition,
     resetAllState,
     windowWidth,
+    pressButtonВisplacement,
   };
 };
 
