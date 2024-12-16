@@ -44,6 +44,8 @@ const DraggableCard: React.FC<Props> = memo(
     // Нормализация значения opacity от 0 до 1 для обоих направлений
     const likeOpacity = Math.min(Math.max((translateX - 0) / maxX, 0), 1);
     const nopeOpacity = Math.min(Math.max((0 - translateX) / maxX, 0), 1);
+    const windowSize = windowWidth < 720 ? 300 : 100;
+console.log( windowWidth);
 
     return (
       <>

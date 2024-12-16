@@ -21,6 +21,7 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
   const [translateX, setTranslateX] = useState(0);
   const [isTop, setIsTop] = useState<"top" | "bottom">("top");
   const [windowWidth, setWindowWidth] = useState(1024);
+  const [isAnimating, setIsAnimating] = useState(false);
   const requestRef = useRef<number | null>(null);
   const lastPositionRef = useRef({ x: 0, y: 0 });
 
@@ -171,6 +172,9 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
   };
 
   const pressButtonDisplacement = (direction: "right" | "left"): void => {
+    if (isAnimating) return; // Блокируем повторные клики
+    setIsAnimating(true); // Активируем анимацию
+
     const element = elementRef.current;
     if (element) {
       element.style.willChange = "transform, opacity";
@@ -196,7 +200,8 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
         if (onDismiss) onDismiss();
         element.style.willChange = "auto";
         element.style.transition = "";
-      }, 100);
+        setIsAnimating(false);
+      },  300);
     }
   };
 

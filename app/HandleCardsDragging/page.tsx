@@ -28,7 +28,6 @@ const CustomDraggables: React.FC = () => {
   const handleReset = () => {
     setIsResetting((prev) => (prev = true)); // Включаем режим сброса
     setCounter(0); // Сбрасываем счётчик
-    // setCurrentCounter(0);
     setTimeout(() => {
       setIsResetting(false);
     }, 500);
