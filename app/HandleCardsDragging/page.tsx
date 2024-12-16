@@ -5,8 +5,6 @@ import ResetCard from "@/components/ResetCard/ResetCard";
 import { useEffect, useState } from "react";
 import { card } from "@/utils/data";
 
-import Image from "next/image";
-
 const CustomDraggables: React.FC = () => {
   const [counter, setCounter] = useState<number>(0);
   const [isResetting, setIsResetting] = useState(false);
@@ -33,7 +31,7 @@ const CustomDraggables: React.FC = () => {
     // setCurrentCounter(0);
     setTimeout(() => {
       setIsResetting(false);
-    }, 300);
+    }, 500);
   };
 
   return (

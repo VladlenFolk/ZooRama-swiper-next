@@ -165,10 +165,9 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
     // Сбросить позицию элемента
     dragging.current = false; // Сбросить состояние перетаскивания
     setStartX(0); // Сбросить начальную позицию
-
     setTimeout(() => {
       resetPosition();
-    }, 200);
+    }, 300);
   };
 
   const pressButtonDisplacement = (direction: "right" | "left"): void => {

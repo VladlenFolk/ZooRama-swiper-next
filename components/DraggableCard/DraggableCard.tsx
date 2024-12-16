@@ -91,7 +91,7 @@ const DraggableCard: React.FC<Props> = memo(
             </div>
             {(index === 0 && translateX >= windowWidth / 10 + 10) ||
               (index === 0 && translateX <= -windowWidth / 10 - 10) ||
-              (isActive && (
+              (isActive  && !isResetting &&(
                 <div className="flex justify-around absolute bottom-[10px] w-full">
                   <button
                     onClick={() => pressButtonDisplacement("left")}
