@@ -14,16 +14,21 @@ interface Props {
   isResetting: boolean;
 }
 
-
 const DraggableCard: React.FC<Props> = memo(
   ({ img, handleIncrease, counter, index, length, isResetting }) => {
     const isActive = length - index === counter;
-    const { elementRef, handleDown, resetAllState, translateX, windowWidth, pressButtonВisplacement } =
-      useDrag(() => {
-        // Проверяем, что функция вызывается только для активной карточки
-        if (isActive) handleIncrease();
-      });
-      useRenderCount(`DraggableCard-${index}`);
+    const {
+      elementRef,
+      handleDown,
+      resetAllState,
+      translateX,
+      windowWidth,
+      pressButtonDisplacement,
+    } = useDrag(() => {
+      // Проверяем, что функция вызывается только для активной карточки
+      if (isActive) handleIncrease();
+    });
+    useRenderCount(`DraggableCard-${index}`);
     // Оптимизированный сброс состояния с requestAnimationFrame
     useEffect(() => {
       if (isResetting) {
@@ -32,7 +37,6 @@ const DraggableCard: React.FC<Props> = memo(
         });
       }
     }, [isResetting, resetAllState]);
-
 
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;
@@ -90,7 +94,7 @@ const DraggableCard: React.FC<Props> = memo(
               (isActive && (
                 <div className="flex justify-around absolute bottom-[10px] w-full">
                   <button
-                  onClick={()=>pressButtonВisplacement('left')}
+                    onClick={() => pressButtonDisplacement("left")}
                     className={`w-[31px] h-[31px] pointer-events-auto rounded-full border-[1px] border-[#B40335] flex items-center justify-center ${
                       translateX <= -windowWidth / 10 ? "bg-[#B40335]" : ""
                     }`}
@@ -112,7 +116,7 @@ const DraggableCard: React.FC<Props> = memo(
                     </svg>
                   </button>
                   <button
-                   onClick={()=>pressButtonВisplacement('right')}
+                    onClick={() => pressButtonDisplacement("right")}
                     className={`w-[31px] h-[31px]  pointer-events-auto rounded-full border-[1px] border-[#36DE8D] flex items-center justify-center ${
                       translateX >= windowWidth / 10 ? "bg-[#36DE8D] " : ""
                     }`}

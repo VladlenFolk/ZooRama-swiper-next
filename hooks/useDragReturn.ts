@@ -10,7 +10,7 @@ interface UseDragReturn {
   resetPosition: () => void;
   resetAllState: () => void;
   windowWidth: number;
-  pressButtonВisplacement: (direction: "left" | "right") => void;
+  pressButtonDisplacement: (direction: "left" | "right") => void;
 }
 
 const useDrag = (onDismiss?: () => void): UseDragReturn => {
@@ -151,6 +151,8 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
     if (element) {
       element.style.transition =
         "transform 0.3s ease-out, opacity 0.3s ease-out";
+      lastPositionRef.current.x = 0;
+      lastPositionRef.current.y = 0;
       element.style.setProperty("--x", "0px");
       element.style.setProperty("--y", "0px");
       element.style.setProperty("--rotate", "0deg");
@@ -163,13 +165,13 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
     // Сбросить позицию элемента
     dragging.current = false; // Сбросить состояние перетаскивания
     setStartX(0); // Сбросить начальную позицию
-    
+
     setTimeout(() => {
       resetPosition();
     }, 200);
   };
 
-  const pressButtonВisplacement = (direction: "right" | "left"): void => {
+  const pressButtonDisplacement = (direction: "right" | "left"): void => {
     const element = elementRef.current;
     if (element) {
       element.style.willChange = "transform, opacity";
@@ -177,23 +179,24 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
         ? setTranslateX(windowWidth / 10)
         : setTranslateX(-windowWidth / 10);
 
-        const displacement =
-          direction === "right"
-            ? windowWidth / 5 + 100
-            : -(windowWidth / 5 + 100);
+      const displacement =
+        direction === "right"
+          ? windowWidth / 5 + 100
+          : -(windowWidth / 5 + 100);
 
-        element.style.transition =
-          "transform 0.3s ease-out, opacity 0.3s ease-out";
+      element.style.transition =
+        "transform 0.3s ease-out, opacity 0.3s ease-out";
 
-        element.style.setProperty("--x", `${displacement}px`);
-        element.style.setProperty(
-          "--rotate",
-          direction === "right" ? "15deg" : "-15deg"
-        );
-        element.style.opacity = "0";
+      element.style.setProperty("--x", `${displacement}px`);
+      element.style.setProperty(
+        "--rotate",
+        direction === "right" ? "15deg" : "-15deg"
+      );
+      element.style.opacity = "0";
       setTimeout(() => {
         if (onDismiss) onDismiss();
         element.style.willChange = "auto";
+        element.style.transition = "";
       }, 100);
     }
   };
@@ -226,7 +229,7 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
     resetPosition,
     resetAllState,
     windowWidth,
-    pressButtonВisplacement,
+    pressButtonDisplacement,
   };
 };
 
