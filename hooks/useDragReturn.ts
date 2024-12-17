@@ -210,7 +210,7 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
     if (dragging.current) {
       document.addEventListener("mousemove", handleMove);
       document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove);
+      document.addEventListener("touchmove", handleMove, { passive: false });
       document.addEventListener("touchend", handleEnd);
     } else {
       document.removeEventListener("mousemove", handleMove);

@@ -2,7 +2,7 @@
 
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect, memo } from "react";
+import { useEffect, memo, useState, useRef } from "react";
 import useRenderCount from "@/hooks/useRenderCount";
 
 interface Props {
@@ -16,7 +16,70 @@ interface Props {
 
 const DraggableCard: React.FC<Props> = memo(
   ({ img, handleIncrease, counter, index, length, isResetting }) => {
-    const isActive = length - index === counter;
+   
+    const [isHolding, setIsHolding] = useState(false);
+    const [enter, setEnter] = useState(false);
+    const isActiveCard = length - index === counter;
+    // const isActive = useRef(false); // Ref для фиксации активности состояния кнопки
+    // const isHoldingRef = useRef(false);
+    const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+    useEffect(() => {
+      const handleGlobalMouseUp = () => {
+        if (isHolding) {
+          setIsHolding(false);
+          setEnter(false); // Сброс состояния при отпускании мыши/пальца
+        }
+      };
+    
+      const handleTouchStart = (e: TouchEvent) => {
+        e.preventDefault(); // Работает, если passive = false
+        setIsHolding(true);
+        setEnter(true);
+      };
+    
+      const handleTouchMove = (e: TouchEvent) => {
+        if (isHolding) {
+          const touch = e.touches[0];
+          const button = buttonRef.current;
+          if (button) {
+            const rect = button.getBoundingClientRect();
+            const isInside =
+              touch.clientX >= rect.left &&
+              touch.clientX <= rect.right &&
+              touch.clientY >= rect.top &&
+              touch.clientY <= rect.bottom;
+            setEnter(isInside);
+          }
+        }
+      };
+    
+      const handleTouchEnd = () => {
+        if (isHolding) {
+          setIsHolding(false);
+          setEnter(false);
+        }
+      };
+    
+      // if (isHolding) {
+      //   // Добавляем слушатели для глобальных событий
+      //   document.addEventListener("mouseup", handleGlobalMouseUp);
+      //   document.addEventListener("touchend", handleTouchEnd);
+      //   document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      // }
+      // document.addEventListener("touchstart", handleTouchStart, { passive: false });
+    
+      // return () => {
+      //   // Удаляем слушатели, чтобы избежать утечек памяти
+      //   document.removeEventListener("mouseup", handleGlobalMouseUp);
+      //   document.removeEventListener("touchend", handleTouchEnd);
+      //   document.removeEventListener("touchend", handleTouchEnd);
+      //   document.removeEventListener("touchmove", handleTouchMove);
+      // };
+    }, [isHolding]);
+// console.log(isHolding, enter, isHoldingRef.current, isActive.current);
+
+
     const {
       elementRef,
       handleDown,
@@ -26,7 +89,7 @@ const DraggableCard: React.FC<Props> = memo(
       pressButtonDisplacement,
     } = useDrag(() => {
       // Проверяем, что функция вызывается только для активной карточки
-      if (isActive) handleIncrease();
+      if (isActiveCard) handleIncrease();
     });
     useRenderCount(`DraggableCard-${index}`);
     // Оптимизированный сброс состояния с requestAnimationFrame
@@ -37,6 +100,7 @@ const DraggableCard: React.FC<Props> = memo(
         });
       }
     }, [isResetting, resetAllState]);
+    // console.log(enter, isHolding);
 
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;
@@ -44,8 +108,6 @@ const DraggableCard: React.FC<Props> = memo(
     // Нормализация значения opacity от 0 до 1 для обоих направлений
     const likeOpacity = Math.min(Math.max((translateX - 0) / maxX, 0), 1);
     const nopeOpacity = Math.min(Math.max((0 - translateX) / maxX, 0), 1);
-    const windowSize = windowWidth < 720 ? 300 : 100;
-console.log( windowWidth);
 
     return (
       <>
@@ -55,10 +117,10 @@ console.log( windowWidth);
           <div className="relative">
             <div
               ref={elementRef}
-              onMouseDown={isActive ? handleDown : undefined}
-              onTouchStart={isActive ? handleDown : undefined}
+              onMouseDown={isActiveCard ? handleDown : undefined}
+              onTouchStart={isActiveCard ? handleDown : undefined}
               className={`draggable rounded-lg relative ${
-                isActive
+                isActiveCard
                   ? "pointer-events-auto select-auto "
                   : "pointer-events-none select-none"
               }`}
@@ -93,12 +155,67 @@ console.log( windowWidth);
             </div>
             {(index === 0 && translateX >= windowWidth / 10 + 10) ||
               (index === 0 && translateX <= -windowWidth / 10 - 10) ||
-              (isActive  && !isResetting &&(
+              (isActiveCard && !isResetting && (
                 <div className="flex justify-around absolute bottom-[10px] w-full">
                   <button
-                    onClick={() => pressButtonDisplacement("left")}
+                  ref={buttonRef}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Предотвращаем нежелательное поведение
+                    setIsHolding(true);
+                    setEnter(true); // Сразу активируем состояние
+                  }}
+                  onMouseUp={(e) => {
+                    e.preventDefault(); // Предотвращаем двойное срабатывание
+                    if (isHolding && enter) {
+                      pressButtonDisplacement("left"); // Вызываем действие
+                    }
+                    setIsHolding(false);
+                    setEnter(false); // Сбрасываем состояние
+                  }}
+                  onMouseLeave={() => {
+                    if (isHolding) {
+                      setEnter(false); // Убираем активное состояние при выходе
+                    }
+                  }}
+                  onMouseEnter={() => {
+                    if (isHolding) {
+                      setEnter(true); // Включаем активное состояние при входе
+                    }
+                  }}
+                  // onTouchStart={(e) => {
+                  //   e.preventDefault();
+                  //   setIsHolding(true);
+                  //   setEnter(true); // Сразу активируем состояние
+                  // }}
+                  // onTouchEnd={(e) => {
+                  //   e.preventDefault();
+                  //   if (isHolding && enter) {
+                  //     pressButtonDisplacement("left"); // Выполняем действие
+                  //   }
+                  //   setIsHolding(false);
+                  //   setEnter(false); // Сбрасываем состояние
+                  // }}
+                  // onTouchMove={(e) => {
+                  //   if (isHolding) {
+                  //     const touch = e.touches[0];
+                  //     const button = buttonRef.current;
+                  //     if (button) {
+                  //       const rect = button.getBoundingClientRect();
+                  //       const isInside =
+                  //         touch.clientX >= rect.left &&
+                  //         touch.clientX <= rect.right &&
+                  //         touch.clientY >= rect.top &&
+                  //         touch.clientY <= rect.bottom;
+            
+                  //       setEnter(isInside); // Обновляем состояние `enter` в зависимости от положения пальца
+                  //     }
+                  //   }
+                  // }}
                     className={`w-[31px] h-[31px] pointer-events-auto rounded-full border-[1px] border-[#B40335] flex items-center justify-center ${
-                      translateX <= -windowWidth / 10 ? "bg-[#B40335]" : ""
+                      translateX <= -windowWidth / 10 ||
+                      (isHolding && enter)
+                        ? "bg-[#B40335]"
+                        : ""
                     }`}
                   >
                     <svg
@@ -110,7 +227,8 @@ console.log( windowWidth);
                       <path
                         d="M18.364 5.636a1 1 0 0 0-1.414 0L12 10.586 7.05 5.636a1 1 0 1 0-1.414 1.414L10.586 12l-5.95 5.95a1 1 0 1 0 1.414 1.414L12 13.414l5.95 5.95a1 1 0 1 0 1.414-1.414L13.414 12l5.95-5.95a1 1 0 0 0 0-1.414z"
                         fill={
-                          translateX <= -windowWidth / 10
+                          translateX <= -windowWidth / 10 ||
+                          (isHolding && enter)
                             ? "#FFFFFF"
                             : "#B40335"
                         } // Белый крестик при активном состоянии
