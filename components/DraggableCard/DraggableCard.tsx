@@ -16,11 +16,11 @@ interface Props {
 
 const DraggableCard: React.FC<Props> = memo(
   ({ img, handleIncrease, counter, index, length, isResetting }) => {
-    const [isHolding, setIsHolding] = useState(false);
-    const [enter, setEnter] = useState(false);
+    const [isHolding, setIsRightHolding] = useState(false);
+    const [enter, setRightEnter] = useState(false);
     const isActiveCard = length - index === counter;
-    const buttonRef = useRef<HTMLButtonElement | null>(null);
-
+    const buttonRightRef = useRef<HTMLButtonElement | null>(null);
+    const buttonLeftRef = useRef<HTMLButtonElement | null>(null);
     const {
       elementRef,
       handleDown,
@@ -50,36 +50,7 @@ const DraggableCard: React.FC<Props> = memo(
     const likeOpacity = Math.min(Math.max((translateX - 0) / maxX, 0), 1);
     const nopeOpacity = Math.min(Math.max((0 - translateX) / maxX, 0), 1);
 
-    useEffect(() => {
-      const handleTouchMove = (e: TouchEvent) => {
-        if (!isHolding || !buttonRef.current) return;
-
-        const touch = e.touches[0];
-        const rect = buttonRef.current.getBoundingClientRect();
-        const isInside =
-          touch.clientX >= rect.left &&
-          touch.clientX <= rect.right &&
-          touch.clientY >= rect.top &&
-          touch.clientY <= rect.bottom;
-
-        if (!isInside) {
-          setEnter(false);
-        } else {
-          setEnter(true);
-        }
-      };
-
-      if (isHolding) {
-        document.addEventListener("touchmove", handleTouchMove, {
-          passive: false,
-        });
-      }
-
-      return () => {
-        document.removeEventListener("touchmove", handleTouchMove);
-      };
-    }, [isHolding]);
-
+   
     return (
       <>
         <div
@@ -129,44 +100,29 @@ const DraggableCard: React.FC<Props> = memo(
               (isActiveCard && !isResetting && (
                 <div className="flex justify-around absolute bottom-[10px] w-full">
                   <button
-                    ref={buttonRef}
+                    ref={buttonRightRef}
                     onMouseDown={(e) => {
                       e.preventDefault(); // Предотвращаем нежелательное поведение
-                      setIsHolding(true);
-                      setEnter(true); // Сразу активируем состояние
+                      setIsRightHolding(true);
+                      setRightEnter(true); // Сразу активируем состояние
                     }}
                     onMouseUp={(e) => {
                       e.preventDefault(); // Предотвращаем двойное срабатывание
                       if (isHolding && enter) {
                         pressButtonDisplacement("left"); // Вызываем действие
                       }
-                      setIsHolding(false);
-                      setEnter(false); // Сбрасываем состояние
+                      setIsRightHolding(false);
+                      setRightEnter(false); // Сбрасываем состояние
                     }}
                     onMouseLeave={() => {
                       if (isHolding) {
-                        setEnter(false); // Убираем активное состояние при выходе
+                        setRightEnter(false); // Убираем активное состояние при выходе
                       }
                     }}
                     onMouseEnter={() => {
                       if (isHolding) {
-                        setEnter(true); // Включаем активное состояние при входе
+                        setRightEnter(true); // Включаем активное состояние при входе
                       }
-                    }}
-                    onTouchStart={() => {
-                      setIsHolding(true);
-                      setEnter(true);
-                    }}
-                    onTouchEnd={() => {
-                      if (isHolding && enter) {
-                        pressButtonDisplacement("left");
-                      }
-                      setIsHolding(false);
-                      setEnter(false);
-                    }}
-                    onTouchCancel={() => {
-                      setIsHolding(false);
-                      setEnter(false);
                     }}
                     className={`w-[31px] h-[31px] pointer-events-auto rounded-full border-[1px] border-[#B40335] flex items-center justify-center ${
                       translateX <= -windowWidth / 10 || (isHolding && enter)
