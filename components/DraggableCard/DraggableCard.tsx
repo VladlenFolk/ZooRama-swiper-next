@@ -16,11 +16,10 @@ interface Props {
 
 const DraggableCard: React.FC<Props> = memo(
   ({ img, handleIncrease, counter, index, length, isResetting }) => {
-    const [isHolding, setIsRightHolding] = useState(false);
-    const [enter, setRightEnter] = useState(false);
+    const [rightEnter, setRightEnter] = useState(false);
+    const [leftEnter, setLeftEnter] = useState(false);
     const isActiveCard = length - index === counter;
-    const buttonRightRef = useRef<HTMLButtonElement | null>(null);
-    const buttonLeftRef = useRef<HTMLButtonElement | null>(null);
+
     const {
       elementRef,
       handleDown,
@@ -50,7 +49,6 @@ const DraggableCard: React.FC<Props> = memo(
     const likeOpacity = Math.min(Math.max((translateX - 0) / maxX, 0), 1);
     const nopeOpacity = Math.min(Math.max((0 - translateX) / maxX, 0), 1);
 
-   
     return (
       <>
         <div
@@ -100,32 +98,15 @@ const DraggableCard: React.FC<Props> = memo(
               (isActiveCard && !isResetting && (
                 <div className="flex justify-around absolute bottom-[10px] w-full">
                   <button
-                    ref={buttonRightRef}
-                    onMouseDown={(e) => {
-                      e.preventDefault(); // Предотвращаем нежелательное поведение
-                      setIsRightHolding(true);
-                      setRightEnter(true); // Сразу активируем состояние
-                    }}
-                    onMouseUp={(e) => {
-                      e.preventDefault(); // Предотвращаем двойное срабатывание
-                      if (isHolding && enter) {
-                        pressButtonDisplacement("left"); // Вызываем действие
-                      }
-                      setIsRightHolding(false);
-                      setRightEnter(false); // Сбрасываем состояние
-                    }}
+                    onClick={() => pressButtonDisplacement("left")}
                     onMouseLeave={() => {
-                      if (isHolding) {
-                        setRightEnter(false); // Убираем активное состояние при выходе
-                      }
+                      setRightEnter(false); // Убираем активное состояние при выходе
                     }}
                     onMouseEnter={() => {
-                      if (isHolding) {
-                        setRightEnter(true); // Включаем активное состояние при входе
-                      }
+                      setRightEnter(true); // Включаем активное состояние при входе
                     }}
                     className={`w-[31px] h-[31px] pointer-events-auto rounded-full border-[1px] border-[#B40335] flex items-center justify-center ${
-                      translateX <= -windowWidth / 10 || (isHolding && enter)
+                      translateX <= -windowWidth / 10 || rightEnter
                         ? "bg-[#B40335]"
                         : ""
                     }`}
@@ -139,8 +120,7 @@ const DraggableCard: React.FC<Props> = memo(
                       <path
                         d="M18.364 5.636a1 1 0 0 0-1.414 0L12 10.586 7.05 5.636a1 1 0 1 0-1.414 1.414L10.586 12l-5.95 5.95a1 1 0 1 0 1.414 1.414L12 13.414l5.95 5.95a1 1 0 1 0 1.414-1.414L13.414 12l5.95-5.95a1 1 0 0 0 0-1.414z"
                         fill={
-                          translateX <= -windowWidth / 10 ||
-                          (isHolding && enter)
+                          translateX <= -windowWidth / 10 || rightEnter
                             ? "#FFFFFF"
                             : "#B40335"
                         } // Белый крестик при активном состоянии
@@ -148,9 +128,17 @@ const DraggableCard: React.FC<Props> = memo(
                     </svg>
                   </button>
                   <button
-                    onClick={() => pressButtonDisplacement("right")}
+                    onClick={() => pressButtonDisplacement("left")}
+                    onMouseLeave={() => {
+                      setLeftEnter(false); // Убираем активное состояние при выходе
+                    }}
+                    onMouseEnter={() => {
+                      setLeftEnter(true); // Включаем активное состояние при входе
+                    }}
                     className={`w-[31px] h-[31px]  pointer-events-auto rounded-full border-[1px] border-[#36DE8D] flex items-center justify-center ${
-                      translateX >= windowWidth / 10 ? "bg-[#36DE8D] " : ""
+                      translateX >= windowWidth / 10 || leftEnter
+                        ? "bg-[#36DE8D] "
+                        : ""
                     }`}
                   >
                     <svg
@@ -162,7 +150,9 @@ const DraggableCard: React.FC<Props> = memo(
                       <path
                         d="m480-121-41-37q-106-97-175-167.5t-110-126Q113-507 96.5-552T80-643q0-90 60.5-150.5T290-854q57 0 105.5 27t84.5 78q42-54 89-79.5T670-854q89 0 149.5 60.5T880-643q0 46-16.5 91T806-451.5q-41 55.5-110 126T521-158l-41 37Z"
                         fill={
-                          translateX >= windowWidth / 10 ? "#FFFFFF" : "#36DE8D"
+                          translateX >= windowWidth / 10 || leftEnter
+                            ? "#FFFFFF"
+                            : "#36DE8D"
                         }
                       />
                     </svg>
