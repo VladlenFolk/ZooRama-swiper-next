@@ -18,7 +18,12 @@ const LikeDislikeButtons: FC<Props> = ({
   isResetting,
 }) => {
   const [rightEnter, setRightEnter] = useState(false);
+  const [pressRight, setPressRight] = useState(false);
   const [leftEnter, setLeftEnter] = useState(false);
+  const [pressLeft, setPressLeft] = useState(false);
+
+  
+
   if (
     (index === 0 && translateX >= windowWidth / 10 + 10) ||
     (index === 0 && translateX <= -windowWidth / 10 - 10) ||
