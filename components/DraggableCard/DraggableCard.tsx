@@ -36,7 +36,7 @@ const DraggableCard: React.FC<Props> = memo(
         });
       }
     }, [isResetting, resetAllState]);
-    // console.log(enter, isHolding);
+ 
 
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;

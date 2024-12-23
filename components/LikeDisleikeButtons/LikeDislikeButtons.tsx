@@ -1,4 +1,4 @@
-import { useState, FC } from "react";
+import { useState, FC, useEffect } from "react";
 
 interface Props {
   index: number;
@@ -17,12 +17,23 @@ const LikeDislikeButtons: FC<Props> = ({
   isActiveCard,
   isResetting,
 }) => {
-  const [rightEnter, setRightEnter] = useState(false);
-  const [pressRight, setPressRight] = useState(false);
-  const [leftEnter, setLeftEnter] = useState(false);
-  const [pressLeft, setPressLeft] = useState(false);
-
   
+  const [rightEnter, setRightEnter] = useState(false);
+  const [leftEnter, setLeftEnter] = useState(false);
+
+  const onLeftClick = () => {
+    pressButtonDisplacement("left");
+  };
+
+  const onRightClick = () => {
+    pressButtonDisplacement("right");
+  };
+  useEffect(() => {
+    if (isResetting) {
+      setRightEnter(false);
+      setLeftEnter(false);
+    }
+  }, [isResetting]);
 
   if (
     (index === 0 && translateX >= windowWidth / 10 + 10) ||
@@ -35,7 +46,7 @@ const LikeDislikeButtons: FC<Props> = ({
       (isActiveCard && !isResetting && (
         <div className="flex justify-around absolute bottom-[10px] w-full">
           <button
-            onClick={() => pressButtonDisplacement("left")}
+            onClick={onLeftClick}
             onMouseLeave={() => {
               setRightEnter(false); // Убираем активное состояние при выходе
             }}
@@ -65,7 +76,7 @@ const LikeDislikeButtons: FC<Props> = ({
             </svg>
           </button>
           <button
-            onClick={() => pressButtonDisplacement("left")}
+            onClick={onRightClick}
             onMouseLeave={() => {
               setLeftEnter(false); // Убираем активное состояние при выходе
             }}
