@@ -53,6 +53,8 @@ const LikeDislikeButtons: FC<Props> = ({
             onMouseEnter={() => {
               setRightEnter(true); // Включаем активное состояние при входе
             }}
+            onTouchStart={() => setRightEnter(true)} // Добавлено для сенсорных устройств
+            onTouchEnd={() => setRightEnter(false)} // Добавлено для сенсорных устройств
             className={`w-[31px] h-[31px] pointer-events-auto rounded-full border-[1px] border-[#B40335] flex items-center justify-center ${
               translateX <= -windowWidth / 10 || rightEnter
                 ? "bg-[#B40335]"
@@ -83,6 +85,8 @@ const LikeDislikeButtons: FC<Props> = ({
             onMouseEnter={() => {
               setLeftEnter(true); // Включаем активное состояние при входе
             }}
+            onTouchStart={() => setLeftEnter(true)} // Добавлено для сенсорных устройств
+            onTouchEnd={() => setLeftEnter(false)} // Добавлено для сенсорных устройств
             className={`w-[31px] h-[31px]  pointer-events-auto rounded-full border-[1px] border-[#36DE8D] flex items-center justify-center ${
               translateX >= windowWidth / 10 || leftEnter ? "bg-[#36DE8D] " : ""
             }`}
