@@ -6,9 +6,7 @@
   html {
     font-family: "Inter", system-ui, sans-serif;
   }
-  .draggable {
-    @apply w-[200px] h-[400px]  cursor-grab;
-  
+  .draggable { 
     --x: 0px;
     --y: 0px;
     --opacity: 1;
