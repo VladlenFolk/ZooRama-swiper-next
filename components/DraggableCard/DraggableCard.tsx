@@ -1,6 +1,6 @@
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect, memo, useState, useRef } from "react";
+import { useEffect, memo} from "react";
 import useRenderCount from "@/hooks/useRenderCount";
 import LikeDislikeButtons from "../LikeDisleikeButtons/LikeDislikeButtons";
 interface Props {
