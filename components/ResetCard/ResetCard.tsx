@@ -19,7 +19,7 @@ const ResetCard: React.FC<Props> = ({ handleReset, isEndOfCard }) => {
   return (
     <div
       onClick={doResetWithAnimate}
-      className={`w-[200px] h-[400px]  flex flex-col items-center justify-center
+      className={`w-[200px] h-[400px] sm:w-[70vw] sm:h-[90vh] md:w-[60vw] md:h-[80vh] lg:w-[60vw] lg:h-[80vh]  flex flex-col items-center justify-center
         cursor-pointer  rounded-lg bg-[#c7c7c7] ${
           isEndOfCard ? "pointer-events-auto" : "pointer-events-none"
         }`}
@@ -28,7 +28,7 @@ const ResetCard: React.FC<Props> = ({ handleReset, isEndOfCard }) => {
         className={`w-[100px] h-[100px] bg-[length:100px_100px]
           bg-rotatingArrow bg-no-repeat bg-center transition-transform duration-400 ${
             isAnimating ? "animate-rotate-once" : ""
-          }`}
+          } `}
       ></div>
     </div>
   );

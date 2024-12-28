@@ -1,6 +1,6 @@
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect, memo} from "react";
+import { useEffect, memo } from "react";
 import useRenderCount from "@/hooks/useRenderCount";
 import LikeDislikeButtons from "../LikeDisleikeButtons/LikeDislikeButtons";
 interface Props {
@@ -36,7 +36,6 @@ const DraggableCard: React.FC<Props> = memo(
         });
       }
     }, [isResetting, resetAllState]);
- 
 
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;
@@ -56,8 +55,10 @@ const DraggableCard: React.FC<Props> = memo(
               onMouseDown={isActiveCard ? handleDown : undefined}
               onTouchStart={isActiveCard ? handleDown : undefined}
               className={`draggable cursor-grab rounded-lg relative ${
-  isActiveCard ? "pointer-events-auto select-auto" : "pointer-events-none select-none"
-} w-[200px] h-[400px] sm:w-[80vw] sm:h-[90vh] md:w-[60vw] md:h-[70vh] lg:w-[400px] lg:h-[500px]`}
+                isActiveCard
+                  ? "pointer-events-auto select-auto"
+                  : "pointer-events-none select-none"
+              } w-[200px] h-[400px] sm:w-[70vw] sm:h-[90vh] md:w-[60vw] md:h-[80vh] lg:w-[60vw] lg:h-[80vh]`}
             >
               <div
                 className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  `}
