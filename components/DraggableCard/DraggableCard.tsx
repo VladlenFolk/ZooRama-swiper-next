@@ -1,6 +1,6 @@
 import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
-import { useEffect, memo } from "react";
+import { useEffect, memo, useState } from "react";
 import useRenderCount from "@/hooks/useRenderCount";
 import LikeDislikeButtons from "../LikeDisleikeButtons/LikeDislikeButtons";
 interface Props {
@@ -10,12 +10,23 @@ interface Props {
   index: number;
   length: number;
   isResetting: boolean;
+  onImageLoad: () => void;
+  allLoaded: boolean;
 }
 
 const DraggableCard: React.FC<Props> = memo(
-  ({ img, handleIncrease, counter, index, length, isResetting }) => {
+  ({
+    img,
+    handleIncrease,
+    counter,
+    index,
+    length,
+    isResetting,
+    onImageLoad,
+    allLoaded,
+  }) => {
     const isActiveCard = length - index === counter;
-
+ 
     const {
       elementRef,
       handleDown,
@@ -47,7 +58,9 @@ const DraggableCard: React.FC<Props> = memo(
     return (
       <>
         <div
-          className={`absolute flex items-center justify-center pointer-events-none`}
+          className={`absolute flex items-center justify-center pointer-events-none  ${
+            !allLoaded ? "opacity-0" : "opacity-100"
+          } transition-opacity duration-500`}
         >
           <div className="relative">
             <div
@@ -83,9 +96,10 @@ const DraggableCard: React.FC<Props> = memo(
                 src={img}
                 alt="dog"
                 fill
-                priority
+
                 sizes="(max-width: 768px) 100vw, 300px"
                 className="pointer-events-none select-none  rounded-lg object-center object-cover"
+                onLoad={onImageLoad}
               />
             </div>
             <LikeDislikeButtons
