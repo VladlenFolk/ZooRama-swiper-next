@@ -10,7 +10,8 @@
     --x: 0px;
     --y: 0px;
     --opacity: 1;
-
+    overscroll-behavior: none; 
+    touch-action: none;
     transform: translate(var(--x), var(--y)) rotate(var(--rotate));
   }
 

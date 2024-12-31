@@ -208,23 +208,27 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
 
   //Если вынести слушатели в элемент, то при выходе из окна/элемента карточка будет тормозить
   useEffect(() => {
-    if (dragging.current) {
+    const addListeners = () => {
       document.addEventListener("mousemove", handleMove);
       document.addEventListener("mouseup", handleEnd);
       document.addEventListener("touchmove", handleMove, { passive: false });
       document.addEventListener("touchend", handleEnd);
-    } else {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleEnd);
-    }
-    return () => {
+    };
+  
+    const removeListeners = () => {
       document.removeEventListener("mousemove", handleMove);
       document.removeEventListener("mouseup", handleEnd);
       document.removeEventListener("touchmove", handleMove);
       document.removeEventListener("touchend", handleEnd);
     };
+  
+    if (dragging.current) {
+      addListeners();
+    } else {
+      removeListeners();
+    }
+  
+    return removeListeners;
   }, [dragging, handleMove, handleEnd]);
 
   return {
