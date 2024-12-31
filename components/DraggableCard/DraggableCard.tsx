@@ -10,23 +10,13 @@ interface Props {
   index: number;
   length: number;
   isResetting: boolean;
-  onImageLoad: () => void;
-  allLoaded: boolean;
 }
 
 const DraggableCard: React.FC<Props> = memo(
-  ({
-    img,
-    handleIncrease,
-    counter,
-    index,
-    length,
-    isResetting,
-    onImageLoad,
-    allLoaded,
-  }) => {
+  ({ img, handleIncrease, counter, index, length, isResetting }) => {
+    
     const isActiveCard = length - index === counter;
- 
+
     const {
       elementRef,
       handleDown,
@@ -48,19 +38,22 @@ const DraggableCard: React.FC<Props> = memo(
       }
     }, [isResetting, resetAllState]);
 
+    if (length - index - counter > 1) {
+      return null;
+    }
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;
+
 
     // Нормализация значения opacity от 0 до 1 для обоих направлений
     const likeOpacity = Math.min(Math.max((translateX - 0) / maxX, 0), 1);
     const nopeOpacity = Math.min(Math.max((0 - translateX) / maxX, 0), 1);
 
+
     return (
       <>
         <div
-          className={`absolute flex items-center justify-center pointer-events-none  ${
-            !allLoaded ? "opacity-0" : "opacity-100"
-          } transition-opacity duration-500`}
+          className={`absolute flex items-center justify-center pointer-events-none transition-opacity duration-500`}
         >
           <div className="relative">
             <div
@@ -70,10 +63,10 @@ const DraggableCard: React.FC<Props> = memo(
               className={`draggable cursor-grab rounded-lg relative ${
                 isActiveCard
                   ? "pointer-events-auto select-auto"
-                  : "pointer-events-none select-none"
-              } w-[200px] h-[400px] sm:w-[70vw] sm:h-[90vh] md:w-[60vw] md:h-[80vh] lg:w-[60vw] lg:h-[80vh]`}
+                  : "pointer-events-none select-none" 
+              } w-[200px] h-[400px] sm:w-[70vw] sm:h-[90vh] md:w-[60vw] md:h-[80vh] lg:w-[60vw] lg:h-[80vh] ${isActiveCard}`}
             >
-              <div
+             <div
                 className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  `}
                       ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"} `}
                 style={{
@@ -96,10 +89,10 @@ const DraggableCard: React.FC<Props> = memo(
                 src={img}
                 alt="dog"
                 fill
-
+                priority={index === length}
                 sizes="(max-width: 768px) 100vw, 300px"
                 className="pointer-events-none select-none  rounded-lg object-center object-cover"
-                onLoad={onImageLoad}
+                loading={index === length ? "eager" : "lazy"}
               />
             </div>
             <LikeDislikeButtons

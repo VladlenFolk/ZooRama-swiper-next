@@ -35,22 +35,12 @@ const CustomDraggables: React.FC = () => {
     }, 500);
   };
 
-  // Отслеживание загрузки изображений
-  const handleImageLoad = () => {
-    setLoadedCount((prev) => {
-      const newCount = prev + 1;
-      if (newCount === card.length) {
-        setAllLoaded(true);
-      }
-      return newCount;
-    });
-  };
 
   return (
     <div
       className={`relative w-full h-screen flex flex-col items-center overflow-hidden justify-center select-none `}
     >
-      {!allLoaded && <AnimatedBackground />}
+      {/* <AnimatedBackground /> */}
 
       {card.map((el, index) => (
         <DraggableCard
@@ -61,13 +51,10 @@ const CustomDraggables: React.FC = () => {
           length={card.length - 1}
           index={index}
           isResetting={isResetting}
-          onImageLoad={handleImageLoad}
-          allLoaded={allLoaded}
         />
       ))}
-      {allLoaded && (
-        <ResetCard handleReset={handleReset} isEndOfCard={isEndOfCard} />
-      )}
+        <ResetCard handleReset={handleReset} length={card.length-1} counter={counter} isEndOfCard={isEndOfCard} />
+      
     </div>
   );
 };

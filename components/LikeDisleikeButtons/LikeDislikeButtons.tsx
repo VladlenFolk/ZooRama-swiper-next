@@ -34,6 +34,7 @@ const LikeDislikeButtons: FC<Props> = ({
     }
   }, [isResetting]);
 
+
   if (
     (index === 0 && translateX >= windowWidth / 10 + 10) ||
     (index === 0 && translateX <= -windowWidth / 10 - 10) ||

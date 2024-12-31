@@ -1,13 +1,24 @@
+import { log } from "node:console";
 import { useState } from "react";
 
 interface Props {
   handleReset: () => void;
   isEndOfCard: boolean;
+  length: number;
+  counter: number;
 }
 
-const ResetCard: React.FC<Props> = ({ handleReset, isEndOfCard }) => {
+const ResetCard: React.FC<Props> = ({
+  handleReset,
+  isEndOfCard,
+  length,
+  counter,
+}) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
+  if (length - counter > 1) {
+    return null;
+  }
   const doResetWithAnimate = () => {
     setIsAnimating(true); // Запускаем анимацию
 

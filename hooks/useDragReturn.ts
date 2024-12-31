@@ -166,6 +166,7 @@ const useDrag = (onDismiss?: () => void): UseDragReturn => {
     // Сбросить позицию элемента
     dragging.current = false; // Сбросить состояние перетаскивания
     setStartX(0); // Сбросить начальную позицию
+    setTranslateX(0);
     setTimeout(() => {
       resetPosition();
     }, 300);
