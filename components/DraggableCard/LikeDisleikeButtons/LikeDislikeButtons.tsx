@@ -17,7 +17,6 @@ const LikeDislikeButtons: FC<Props> = ({
   isActiveCard,
   isResetting,
 }) => {
-  
   const [isPressed, setIsPressed] = useState<"left" | "right" | null>(null);
 
   const onLeftClick = () => {
@@ -34,7 +33,6 @@ const LikeDislikeButtons: FC<Props> = ({
     }
   }, [isResetting]);
 
-
   if (
     (index === 0 && translateX >= windowWidth / 10 + 10) ||
     (index === 0 && translateX <= -windowWidth / 10 - 10) ||
@@ -46,14 +44,15 @@ const LikeDislikeButtons: FC<Props> = ({
       (isActiveCard && !isResetting && (
         <div className="flex justify-around absolute bottom-[10px] w-full">
           <button
+            aria-label="dislike"
             onClick={onLeftClick}
-          onMouseDown={() => setIsPressed("left")}
-          onMouseUp={() => setIsPressed(null)}
-          onMouseLeave={() => setIsPressed(null)}
-          onTouchStart={() => setIsPressed("left")}
-          onTouchEnd={() => setIsPressed(null)}
+            onMouseDown={() => setIsPressed("left")}
+            onMouseUp={() => setIsPressed(null)}
+            onMouseLeave={() => setIsPressed(null)}
+            onTouchStart={() => setIsPressed("left")}
+            onTouchEnd={() => setIsPressed(null)}
             className={`w-[40px] h-[40px] pointer-events-auto rounded-full border-[1px] border-[#B40335] flex items-center justify-center ${
-              translateX <= -windowWidth / 10 ||  isPressed === "left"
+              translateX <= -windowWidth / 10 || isPressed === "left"
                 ? "bg-[#B40335]"
                 : ""
             }`}
@@ -67,7 +66,7 @@ const LikeDislikeButtons: FC<Props> = ({
               <path
                 d="M18.364 5.636a1 1 0 0 0-1.414 0L12 10.586 7.05 5.636a1 1 0 1 0-1.414 1.414L10.586 12l-5.95 5.95a1 1 0 1 0 1.414 1.414L12 13.414l5.95 5.95a1 1 0 1 0 1.414-1.414L13.414 12l5.95-5.95a1 1 0 0 0 0-1.414z"
                 fill={
-                  translateX <= -windowWidth / 10 ||  isPressed === "left"
+                  translateX <= -windowWidth / 10 || isPressed === "left"
                     ? "#FFFFFF"
                     : "#B40335"
                 } // Белый крестик при активном состоянии
@@ -75,14 +74,17 @@ const LikeDislikeButtons: FC<Props> = ({
             </svg>
           </button>
           <button
-             onClick={onRightClick}
-             onMouseDown={() => setIsPressed("right")}
-             onMouseUp={() => setIsPressed(null)}
-             onMouseLeave={() => setIsPressed(null)}
-             onTouchStart={() => setIsPressed("right")}
-             onTouchEnd={() => setIsPressed(null)}
+            aria-label="like"
+            onClick={onRightClick}
+            onMouseDown={() => setIsPressed("right")}
+            onMouseUp={() => setIsPressed(null)}
+            onMouseLeave={() => setIsPressed(null)}
+            onTouchStart={() => setIsPressed("right")}
+            onTouchEnd={() => setIsPressed(null)}
             className={`w-[40px] h-[40px]  pointer-events-auto rounded-full border-[1px] border-[#36DE8D] flex items-center justify-center ${
-              translateX >= windowWidth / 10 || isPressed === "right" ? "bg-[#36DE8D] " : ""
+              translateX >= windowWidth / 10 || isPressed === "right"
+                ? "bg-[#36DE8D] "
+                : ""
             }`}
           >
             <svg

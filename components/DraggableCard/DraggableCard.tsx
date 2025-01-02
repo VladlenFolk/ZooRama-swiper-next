@@ -14,7 +14,6 @@ interface Props {
 
 const DraggableCard: React.FC<Props> = memo(
   ({ img, handleIncrease, counter, index, length, isResetting }) => {
-    
     const isActiveCard = length - index === counter;
 
     const {
@@ -38,17 +37,12 @@ const DraggableCard: React.FC<Props> = memo(
       }
     }, [isResetting, resetAllState]);
 
-    if (length - index - counter > 1) {
-      return null;
-    }
     // Максимальное значение при котором opacity становится 1
     const maxX = windowWidth / 10 + 10;
-
 
     // Нормализация значения opacity от 0 до 1 для обоих направлений
     const likeOpacity = Math.min(Math.max((translateX - 0) / maxX, 0), 1);
     const nopeOpacity = Math.min(Math.max((0 - translateX) / maxX, 0), 1);
-
 
     return (
       <>
@@ -63,10 +57,11 @@ const DraggableCard: React.FC<Props> = memo(
               className={`draggable cursor-grab rounded-lg relative ${
                 isActiveCard
                   ? "pointer-events-auto select-auto"
-                  : "pointer-events-none select-none" 
-              } w-[200px] h-[400px] sm:w-[300px] sm:h-[80vh] md:w-[300px] md:h-[80vh] lg:w-[400px] lg:h-[80vh] ${isActiveCard}`}
+                  : "pointer-events-none select-none"
+              } w-[200px] h-[400px] sm:w-[300px] sm:h-[80vh] md:w-[300px] md:h-[80vh] lg:w-[500px] lg:h-[70vh] ${isActiveCard}`}
             >
-             <div
+              <div
+                aria-label="like"
                 className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  `}
                       ${"top-[20px] bg-[green] left-[20px] p-[10px] rounded-[5px] rotate-[-30deg]"} `}
                 style={{
@@ -76,6 +71,7 @@ const DraggableCard: React.FC<Props> = memo(
                 LIKE
               </div>
               <div
+                aria-label="dislike"
                 className={`${"absolute z-10  text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none"} 
                 ${"top-[20px] bg-[red] right-[20px] p-[10px] rounded-[5px] rotate-[30deg]"} `}
                 style={{

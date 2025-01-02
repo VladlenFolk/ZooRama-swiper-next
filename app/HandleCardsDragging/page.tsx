@@ -38,6 +38,7 @@ const CustomDraggables: React.FC = () => {
       <nav>
         <Link
           href={"/"}
+          aria-label="Go to Home"
           className={`absolute bg-[url('/home.png')] cursor-pointer bg-cover 
           top-[5px] left-[5px] lg:top-[20px] lg:left-[20px] lg:p-8 h-[50px] w-[50px]
           z-10`}
@@ -59,8 +60,6 @@ const CustomDraggables: React.FC = () => {
         ))}
         <ResetCard
           handleReset={handleReset}
-          length={card.length - 1}
-          counter={counter}
           isEndOfCard={isEndOfCard}
         />
       </div>

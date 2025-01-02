@@ -1,24 +1,16 @@
-import { log } from "node:console";
 import { useState } from "react";
 
 interface Props {
   handleReset: () => void;
   isEndOfCard: boolean;
-  length: number;
-  counter: number;
 }
 
 const ResetCard: React.FC<Props> = ({
   handleReset,
   isEndOfCard,
-  length,
-  counter,
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
-  if (length - counter > 1) {
-    return null;
-  }
   const doResetWithAnimate = () => {
     setIsAnimating(true); // Запускаем анимацию
 
@@ -30,7 +22,7 @@ const ResetCard: React.FC<Props> = ({
   return (
     <div
       onClick={doResetWithAnimate}
-      className={`w-[200px] h-[400px] sm:w-[300px] sm:h-[500px] md:w-[300px] md:h-[500px] lg:w-[400px] lg:h-[600px]   flex flex-col items-center justify-center
+      className={`w-[200px] h-[400px] sm:w-[300px] sm:h-[80vh] md:w-[300px] md:h-[80vh] lg:w-[500px] lg:h-[70vh]   flex flex-col items-center justify-center
         cursor-pointer  rounded-lg bg-[#c7c7c7] ${
           isEndOfCard ? "pointer-events-auto" : "pointer-events-none"
         }`}
