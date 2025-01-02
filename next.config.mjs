@@ -1,8 +1,18 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    domains: ["avatars.mds.yandex.net", "i.pinimg.com"], // Добавляем доверенный домен
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
+const nextConfig = withBundleAnalyzer({
+  compress: true,
+  webpack(config) {
+    config.optimization.splitChunks = {
+      chunks: "all",
+    };
+    return config;
   },
-};
+});
 
 export default nextConfig;
