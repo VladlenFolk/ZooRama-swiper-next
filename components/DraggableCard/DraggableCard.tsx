@@ -64,7 +64,7 @@ const DraggableCard: React.FC<Props> = memo(
                 isActiveCard
                   ? "pointer-events-auto select-auto"
                   : "pointer-events-none select-none" 
-              } w-[200px] h-[400px] sm:w-[300px] sm:h-[500px] md:w-[300px] md:h-[500px] lg:w-[400px] lg:h-[600px] ${isActiveCard}`}
+              } w-[200px] h-[400px] sm:w-[300px] sm:h-[80vh] md:w-[300px] md:h-[80vh] lg:w-[400px] lg:h-[80vh] ${isActiveCard}`}
             >
              <div
                 className={`${`absolute  z-10 text-center w-[70px] text-[1rem] font-bold  text-white pointer-events-none  `}
