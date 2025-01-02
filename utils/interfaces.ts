@@ -1,4 +1,4 @@
-export type Status = "good" | "bad" | "normal";
+export type Status = "words" | "nouns" | "verbs";
 
 export interface Data {
   id: number;

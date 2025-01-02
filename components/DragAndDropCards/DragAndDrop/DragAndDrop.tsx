@@ -4,7 +4,7 @@ import { ContainerCards } from "../ContainerCards/ContainerCards";
 import { data } from "@/utils/data";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 
-const typesHero: Status[] = ["good", "normal", "bad"];
+const typesHero: Status[] = ["words", "nouns", "verbs"];
 
 export const DragAndDrop = () => {
   const { isDragging, listItems, handleDragging, handleUpdateList } =

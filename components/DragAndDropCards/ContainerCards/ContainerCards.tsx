@@ -36,18 +36,21 @@ export const ContainerCards = ({
       onDrop={handleDrop}
     >
       <p className="rounded-[5px] bg-black text-center py-4 font-bold capitalize">
-        {status} hero
+        {status}
       </p>
-      {items.map(
-        (item) =>
+      {items.map((item, index) => {
+        const isLastItem = index === items.length - 1;
+        return (
           status === item.status && (
             <CardItem
               data={item}
               key={item.id}
               handleDragging={handleDragging}
+              isLastItem={isLastItem}
             />
           )
-      )}
+        );
+      })}
     </div>
   );
 };

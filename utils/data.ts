@@ -3,23 +3,38 @@ import { Data, Card } from "./interfaces";
 export const data: Data[] = [
   {
     id: 1,
-    content: "Aqua-man",
-    status: "good",
+    content: "Apple",
+    status: "words",
   },
   {
     id: 2,
-    content: "Flash",
-    status: "normal",
+    content: "Run",
+    status: "words",
   },
   {
     id: 3,
-    content: "Green Lantern",
-    status: "good",
+    content: "Book",
+    status: "words",
   },
   {
     id: 4,
-    content: "Batman",
-    status: "bad",
+    content: "Write",
+    status: "words",
+  },
+  {
+    id: 5,
+    content: "Table",
+    status: "words",
+  },
+  {
+    id: 6,
+    content: "Jump",
+    status: "words",
+  },
+  {
+    id: 7,
+    content: "Car",
+    status: "words",
   },
 ];
 

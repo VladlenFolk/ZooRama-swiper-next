@@ -29,6 +29,7 @@ const Home: React.FC = () => {
                  text-[#FFFF00] border-[#FFFF00] [text-shadow:0_0_10px_#FFFF00] shadow-[0_0_10px_#FFFF00] 
                    lg:hover:shadow-[0_0_20px_#FFFF00,0_0_40px_#FFFF00]
                    active:shadow-[0_0_20px_#FFFF00,0_0_40px_#FFFF00]
+                   sm:hidden lg:flex
                     `}
       >
         Drag-and-Drop
