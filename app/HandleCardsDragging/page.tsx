@@ -1,7 +1,7 @@
 "use client";
 
 import DraggableCard from "@/components/DraggableCard/DraggableCard";
-import ResetCard from "@/components/ResetCard/ResetCard";
+import ResetCard from "@/components/DraggableCard/ResetCard/ResetCard";
 import { useEffect, useState } from "react";
 import { card } from "@/utils/data";
 

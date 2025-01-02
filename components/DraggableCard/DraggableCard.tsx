@@ -2,7 +2,7 @@ import useDrag from "@/hooks/useDragReturn";
 import Image from "next/image";
 import { useEffect, memo, useState } from "react";
 import useRenderCount from "@/hooks/useRenderCount";
-import LikeDislikeButtons from "../LikeDisleikeButtons/LikeDislikeButtons";
+import LikeDislikeButtons from "./LikeDisleikeButtons/LikeDislikeButtons";
 interface Props {
   img: string;
   handleIncrease: () => void;
