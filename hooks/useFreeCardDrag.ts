@@ -1,61 +1,89 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from "react";
 
 interface UseDragReturn {
   elementRef: React.RefObject<HTMLDivElement>;
-  translate: { x: number; y: number };
-  handleMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  handleMouseDown: (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => void;
 }
 
 const useFreeDrag = (): UseDragReturn => {
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const [dragging, setDragging] = useState(false);
+  const dragging = useRef(false);
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const lastPositionRef = useRef({ x: 0, y: 0 });
+  const requestRef = useRef<number | null>(null);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    e.stopPropagation();
+
     const element = elementRef.current;
     if (!element) return;
 
-    const style = window.getComputedStyle(element);
-    const translateX = parseInt(style.getPropertyValue('--x')) || 0;
-    const translateY = parseInt(style.getPropertyValue('--y')) || 0;
+    element.style.transition = "";
+    element.style.willChange = "transform, opacity";
 
-    setStartX(e.pageX - translateX);
-    setStartY(e.pageY - translateY);
-    setDragging(true);
+    const clientX = "touches" in e ? e.touches[0].pageX : e.pageX;
+    const clientY = "touches" in e ? e.touches[0].pageY : e.pageY;
+
+    setStartX(clientX - lastPositionRef.current.x);
+    setStartY(clientY - lastPositionRef.current.y);
+
+    dragging.current = true;
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!dragging) return;
-
-    const x = e.pageX - startX;
-    const y = e.pageY - startY;
-
-    setTranslate({ x, y });
-
+  const updatePosition = (x: number, y: number) => {
     const element = elementRef.current;
-    if (element) {
-      element.style.setProperty('--x', `${x}px`);
-      element.style.setProperty('--y', `${y}px`);
+    if (!element) return;
+    element.style.transform = `translate(${x}px, ${y}px)`;
+  };
+
+  const handleMove = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      if (!dragging.current) return;
+
+      const clientX = e instanceof MouseEvent ? e.pageX : e.touches[0].pageX;
+      const clientY = e instanceof MouseEvent ? e.pageY : e.touches[0].pageY;
+
+      const x = clientX - startX;
+      const y = clientY - startY;
+
+      lastPositionRef.current = { x, y };
+
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      requestRef.current = requestAnimationFrame(() => {
+        updatePosition(x, y);
+      });
+    },
+    [startX, startY]
+  );
+
+  const handleEnd = () => {
+    dragging.current = false;
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+      requestRef.current = null;
     }
   };
 
-  const handleMouseUp = () => {
-    setDragging(false);
-  };
-
   useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+  
+
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleEnd);
+    document.addEventListener("touchmove", handleMove);
+    document.addEventListener("touchend", handleEnd);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleMove);
+      document.removeEventListener("touchend", handleEnd);
     };
-  }, [dragging, startX, startY]);
+  }, [handleMove]);
 
-  return { elementRef, translate, handleMouseDown };
+  return { elementRef, handleMouseDown };
 };
 
 export default useFreeDrag;
